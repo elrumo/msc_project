@@ -10,6 +10,7 @@
     "airtable": "^0.8.1",
     "primeicons": "^4.0.0",
     "primevue": "^2.0.0-SNAPSHOT",
+    "snack-helper": "^1.3.0",
     "vuent": "^0.7.0"
   },
   "devDependencies": {

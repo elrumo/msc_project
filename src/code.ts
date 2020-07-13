@@ -8,6 +8,8 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
 
+figma.ui.resize(380, 440)
+
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
 // posted message.
@@ -29,7 +31,8 @@ figma.ui.onmessage = msg => {
 
   if (msg.type == "find-layers"){
     // const selection = figma.currentPage.findOne(n => n.type === "GROUP") 
-    
+    let parent = this
+
     let card = figma.currentPage.findOne(n => n.name === "Group")
     for(var i = 0; i < msg.db.length - 1; i++){
       card.clone()
@@ -48,7 +51,7 @@ figma.ui.onmessage = msg => {
     for(let i = 0; i < msg.db.length; i++){
       for(let key in msg.db){
         for(let field in msg.db[key]){
-          const textNode = groupNodes[i].findOne(n => n.name === field)       
+          const textNode = parent.groupNodes[i].findOne(n => n.name === field)       
           try{
             figma.loadFontAsync(textNode.fontName).then( function(){
               textNode.characters = msg.db[i][field]
@@ -59,11 +62,15 @@ figma.ui.onmessage = msg => {
         }
       }
     }
-
   }
 
+  if (msg.type == "closePlugin"){
+    closePlugin()
+  }
 
+  function closePlugin(){
+    figma.closePlugin();
+  }
   // Make sure to close the plugin when you're done. Otherwise the plugin will
   // keep running, which shows the cancel button at the bottom of the screen.
-  figma.closePlugin();
 };

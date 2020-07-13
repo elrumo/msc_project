@@ -1,0 +1,16 @@
+._coral-Button {
+    border-radius: 6px !important;
+}
+
+.coral--large{
+    opacity: 1 !important;
+}
+
+.coral--large ._coral-Button{
+    min-height: 36px;
+    min-width: 100px;
+}
+
+.coral-List--minimal>.coral-List-item{
+    padding-bottom: 8px !important;
+}
