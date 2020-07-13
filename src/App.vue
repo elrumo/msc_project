@@ -14,11 +14,12 @@
 </template>
 
 <script>
+import Vuent from 'vuent';
 import * as Airtable from 'airtable'
 
 Airtable.configure({
     endpointUrl: 'https://api.airtable.com',
-    apiKey: 'keyHAas7QNbaGOpTj'
+    apiKey: 'keyExKGas9NCSngJL'
 });
 
 var base = Airtable.base('app6SuyzdnEbczu2W');
@@ -30,6 +31,7 @@ export default {
       count: 2,
       db: [],
       recordsNum: 1,
+      airtableBase: ""
     };
   },
   methods: {
@@ -82,50 +84,5 @@ export default {
 </script>
 
 <style>
-@import url(app.css);
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-body {
-  font: 12px sans-serif;
-  text-align: center;
-  margin: 20px;
-}
-button {
-  border-radius: 5px;
-  background: white;
-  color: black;
-  border: none;
-  padding: 8px 15px;
-  margin: 0 5px;
-  box-shadow: inset 0 0 0 1px black;
-  outline: none;
-}
-#create {
-  box-shadow: none;
-  background: #18a0fb;
-  color: white;
-}
-input {
-  border: none;
-  outline: none;
-  padding: 8px;
-}
-input:hover {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-button:focus {
-  box-shadow: inset 0 0 0 2px #18a0fb;
-}
-#create:focus {
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3);
-}
-input:focus {
-  box-shadow: inset 0 0 0 2px #18a0fb;
-}
+  @import url(app.css);
 </style>
