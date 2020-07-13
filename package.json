@@ -6,6 +6,7 @@
     "watch": "webpack --mode=development --watch"
   },
   "dependencies": {
+    "@adobe/coral-spectrum": "^4.8.5",
     "airtable": "^0.8.1",
     "primeicons": "^4.0.0",
     "primevue": "^2.0.0-SNAPSHOT",

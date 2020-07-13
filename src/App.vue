@@ -10,6 +10,11 @@
     </div>
     <button @click="findLayers">Create Report</button>
     <button @click="getItems">Fetch Data</button>
+
+    <button is="coral-button">Default</button>
+
+
+
   </div>
 </template>
 
@@ -31,7 +36,13 @@ export default {
       count: 2,
       db: [],
       recordsNum: 1,
-      airtableBase: ""
+      airtableBase: "",
+      message: "Hi",
+      radioValue: false,
+      ratingValue: 2.25,
+      countries: ["Hi", "Hi2"],
+      country: ""
+
     };
   },
   methods: {
@@ -85,4 +96,5 @@ export default {
 
 <style>
   @import url(app.css);
+  @import url(coral-changed.css);
 </style>
