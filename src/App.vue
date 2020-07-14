@@ -155,6 +155,36 @@ export default {
       );
     },
 
+    showLoader(){
+      window.addEventListener('load', function() {
+        // Mocked server interaction
+        window.fakejax = function(url, data, callback) {
+          var requestTimeout = setTimeout(function() {
+            // Filter the suggestions according to the user input
+            // This would run on the server, effectively
+            var suggestions = [];
+
+            for (var i = 0; i < 10; i++) {
+              var number = i + data.start;
+              suggestions.push({
+                value: number,
+                content: 'Item ' + number
+              });
+            }
+
+            callback(suggestions);
+          }, 1000);
+
+          return {
+            abort: function() {
+              // Stop previous request
+              clearTimeout(requestTimeout);
+            }
+          };
+        };
+      })
+    },
+
     focusOnInput(){
         this.$refs.tableNameInput.focus()
     },
