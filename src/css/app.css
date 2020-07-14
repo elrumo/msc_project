@@ -48,10 +48,14 @@
   } */
 
   .main-view{
-    height: 100vh;
+    height: 80%;
     padding: 0px 45px 0px 45px;
-    overflow: hidden;
+    /* overflow: hidden; */
   }
+/* 
+  .p-b-50prc{
+    padding-bottom: 50%;
+  } */
 
   .float-left{
     left: 10%;
@@ -62,7 +66,7 @@
   }
 
   .panel-btns{
-    position: absolute;
+    position: fixed;
     bottom: 5px;
   }
 
@@ -75,10 +79,11 @@
   }
 
   .nav-bar{
+    position: fixed;
     background: white;
-    box-shadow: 0px 7px 24px 0px rgba(0, 0, 0, 0.15);
-    height: 75px;
-    width: 100vw;
     bottom: 0;
     left: 0;
+    width: 100vw;
+    height: 75px;
+    box-shadow: 0px 7px 24px 0px rgba(0, 0, 0, 0.15);
   }

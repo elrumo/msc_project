@@ -1,5 +1,6 @@
 <template>
   <div class="main-view">
+    
     <div class="nav-bar panel-btns"></div>
     
     <h1 class="coral-Heading--XS p-t-5">Airtable to Figma</h1>
@@ -59,8 +60,16 @@
         </coral-panel>
 
         <!-- Content view 3 -->
-        <coral-panel>
-          {{ db }}
+        <coral-panel class="p-b-50 m-b-50">
+            <div v-for="field in fieldsArray" :key="field" class="p-b-15">
+              <label id="label" class="coral-FieldLabel f-s-14">{{ field }}</label>
+              <input
+                type="text"
+                v-model="tableName"
+                class="coral-Form-field _coral-Textfield"
+                :placeholder="field"
+              >
+            </div>
         </coral-panel>
 
       </coral-panelstack> 
@@ -106,20 +115,6 @@
       </coral-panelstack>
 
     </coral-wizardview>
-
-
-
-    <!-- <h1 class="coral-Heading--XXS">How many records?</h1>
-    <form class="coral-Form coral-Form--vertical">
-        <coral-numberinput :value="recordsNum" id="textArea" labelledby="label1"></coral-numberinput>
-    </form>
-    <div v-if="db[0]" class="">
-      Data fetched
-    </div>
-    <button is="coral-button" @click="findLayers">Create Report</button>
-    <button is="coral-button" @click="getItems">Fetch Data</button> -->
-
-
 
   </div>
 </template>
@@ -226,6 +221,10 @@ export default {
                 console.log(base);
                 // Connect to selected airtbale database
                 function connectToDb(){
+                  
+                  // Empty fields array everytime the func is ran
+                  parentComp.fieldsArray = []
+
                   base(parentComp.tableName).select({
                       // Selecting the first 3 records in Grid view:
                       maxRecords: 10,
@@ -235,6 +234,8 @@ export default {
                       for(let field in records[0].fields){
                         parentComp.fieldsArray.push(field)
                       }
+
+
 
                       console.log(parentComp.fieldsArray);
                       records.forEach(function(record) {
