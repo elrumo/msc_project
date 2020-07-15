@@ -121,11 +121,7 @@
         </coral-panel>
 
         <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="cta" @click="writeToFigma" > Next </button>
-        </coral-panel>
-        
-        <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="cta" > Next </button>
+          <button is="coral-button" variant="cta" @click="writeToFigma" > Import Data </button>
         </coral-panel>
 
       </coral-panelstack>
@@ -151,9 +147,11 @@ export default {
       count: 2,
       db: [],
       tableName: "Insights",
-      recordsNum: 5,
+      // tableName: "Insights",
+      recordsNum: 15,
       airtableBase: "",
       baseURL: "https://airtable.com/shrB9LtTWEQmBuaBn",
+      // baseURL: "https://airtable.com/shrB9LtTWEQmBuaBn",
       urlKey: "",
 
       aTData: {},
@@ -240,7 +238,7 @@ export default {
 
               base(parentComp.tableName).select({
                   // Selecting the first 3 records in Grid view:
-                  maxRecords: 10,
+                  maxRecords: parentComp.recordsNum,
                   view: "Grid view"
               }).eachPage(function page(records, fetchNextPage) {
                   // This function (`page`) will get called for each page of records.
@@ -292,35 +290,6 @@ export default {
         }
 
       scrape(urls)
-
-      //   base('Feedback sessions').select({
-          //     // Selecting the first 3 records in All sessions:
-          //     maxRecords: parentComp.recordsNum,
-          //     view: "All sessions"
-          //       }).eachPage(function page(records, fetchNextPage) {
-          //         // This function (`page`) will get called for each page of records.
-          //           records.forEach(function(record) {
-                      
-          //               // parent.db = record.id;
-          //             base('Feedback sessions').find(record.id, function(err, record2){ 
-          //               var item = {
-          //                 "id": record2.id,
-          //                 "name": record2.fields.Name,
-          //                 "session type": record2.fields["Session type"],
-          //                 "notes": record2.fields.Notes,
-          //               }
-          //               parentComp.db.push(item);
-          //               // console.log(records)
-          //             })
-          //           });
-          //           // To fetch the next page of records, call `fetchNextPage`.
-          //           // If there are more records, `page` will get called again.
-          //           // If there are no more records, `done` will get called.
-          //           fetchNextPage();
-          //       }, function done(err) {
-          //         if (err) { console.error(err); return; }
-      //     });
-    
     },
 
     writeToFigma(){
@@ -358,7 +327,6 @@ export default {
     let parentComp = this;
       if(event.data.pluginMessage.postMessage == "layerNames"){
         parentComp.textLayerNames = event.data.pluginMessage.layerNamesArr
-        console.log(event.data.pluginMessage);
       }
     }
 
