@@ -8,7 +8,7 @@
 
     <coral-wizardview class="h-full">
       
-
+      <!-- TODO: #3 Create components instead of writing everything in here as pure html -->
       <!-- Steps -->
       <coral-steplist coral-wizardview-steplist="" class="steps" interaction="on">
         <coral-step>Step 1</coral-step>
@@ -61,15 +61,27 @@
 
         <!-- Content view 3 -->
         <coral-panel class="p-b-50 m-b-50">
-            <div v-for="field in fieldsArray" :key="field" class="p-b-15">
-              <label id="label" class="coral-FieldLabel f-s-14">{{ field }}</label>
-              <input
-                type="text"
-                v-model="tableName"
-                class="coral-Form-field _coral-Textfield"
-                :placeholder="field"
-              >
-            </div>
+          
+          <p class="coral-Body--XS p-b-5">Select layers to fill with data.</p>
+
+          <div v-for="layer in textLayerNames" :key="layer" class="p-b-5">
+            <form class="coral-Form coral-Form--vertical">
+              <label :aria-label="layer" class="coral-Form-fieldlabel">{{ layer }}</label>
+              
+              <coral-select :labelledby="layer" :ref="layer" placeholder="Choose an item">
+                <!-- TODO: #2 Each item should be a layer on Figma, use a for each. -->
+                <coral-select-item
+                  v-for="aTfield in aTfieldsArray"
+                  :key="aTfield"
+                  :value="aTfield"
+                >
+                  {{ aTfield }}
+                </coral-select-item>
+                <coral-select-item value=""><i style="color: #959595;">Choose an item</i></coral-select-item>
+              </coral-select>
+
+            </form>
+          </div>
         </coral-panel>
 
       </coral-panelstack> 
@@ -109,6 +121,10 @@
         </coral-panel>
 
         <coral-panel class="u-coral-margin">
+          <button is="coral-button" variant="cta" @click="writeToFigma" > Next </button>
+        </coral-panel>
+        
+        <coral-panel class="u-coral-margin">
           <button is="coral-button" variant="cta" > Next </button>
         </coral-panel>
 
@@ -120,7 +136,7 @@
 </template>
 
 <script>
-import Vuent from 'vuent';
+import Vuex from 'vuex'
 import * as Airtable from 'airtable'
 
 Airtable.configure({
@@ -128,22 +144,23 @@ Airtable.configure({
     apiKey: 'keyExKGas9NCSngJL'
 });
 
-
-
-// Not  working ->  https://api.airtable.com/v0/shrB9LtTWEQmBuaBn/tbljEcbiDELjeVunk/Insights?maxRecords=3&view=Grid+view 
-
 export default {
   name: "App",
   data() {
     return {
       count: 2,
       db: [],
-      tableName: "",
+      tableName: "Insights",
       recordsNum: 5,
       airtableBase: "",
-      baseURL: "",
+      baseURL: "https://airtable.com/shrB9LtTWEQmBuaBn",
       urlKey: "",
-      fieldsArray: [],
+
+      aTData: {},
+      aTfieldsArray: [],
+      textLayerNames: [],
+
+      inputFieldValues: {},
     };
   },
   methods: {
@@ -154,49 +171,21 @@ export default {
         "*"
       );
     },
-
-    showLoader(){
-      window.addEventListener('load', function() {
-        // Mocked server interaction
-        window.fakejax = function(url, data, callback) {
-          var requestTimeout = setTimeout(function() {
-            // Filter the suggestions according to the user input
-            // This would run on the server, effectively
-            var suggestions = [];
-
-            for (var i = 0; i < 10; i++) {
-              var number = i + data.start;
-              suggestions.push({
-                value: number,
-                content: 'Item ' + number
-              });
-            }
-
-            callback(suggestions);
-          }, 1000);
-
-          return {
-            abort: function() {
-              // Stop previous request
-              clearTimeout(requestTimeout);
-            }
-          };
-        };
-      })
-    },
+    
+    // TODO: #1 Add visual loader when data is being fetched. 
 
     focusOnInput(){
         this.$refs.tableNameInput.focus()
     },
     
     closePlugin: function() {
-      parent.postMessage(
-        { pluginMessage: { type: "closePlugin"} },
-        "*"
-      );
+      parent.postMessage({ pluginMessage: { type: "closePlugin"} }, "*" );
     },
+    
     getItems(){
       const parentComp = this
+      const fieldsArrayConst = parentComp.aTfieldsArray
+      
       var urls = parentComp.baseURL
       console.log(urls);
       const noData = { rows: [], columns: [], url: '' }
@@ -213,129 +202,166 @@ export default {
 
       function scrape(url) {
 
-            return fetch(
-              'https://airtable-shr.glitch.me/api?' +
-                serialize({
-                  url,
-                })
-            )
-              .then(r => r.json())
-              .then(data => {
-                if (data && data.data) {
-                  console.log(0)
-                  data = data.data
-                }
-                if (!data || !data.rows || !data.columns) {
-                  console.log(1)
-                  return noData
-                }
-                console.log(2)
-                return data
-              })
-              .catch(e => {
-                console.log(e.message)
-                return noData
-              })
-              .then(data => {
-                console.log(4)
-                data.url = url
-                // Get key url for selected Airtbale database
-                parentComp.urlKey = data.sortTiebreakerKey
-                console.log(parentComp.urlKey)
-                
-                // Sets connection settings to desired db
-                var base = new Airtable.base(parentComp.urlKey);
-                
-                
-                // Functions
-                console.log(base);
-                // Connect to selected airtbale database
-                function connectToDb(){
-                  
-                  // Empty fields array everytime the func is ran
-                  parentComp.fieldsArray = []
-
-                  base(parentComp.tableName).select({
-                      // Selecting the first 3 records in Grid view:
-                      maxRecords: 10,
-                      view: "Grid view"
-                  }).eachPage(function page(records, fetchNextPage) {
-                      // This function (`page`) will get called for each page of records.
-                      for(let field in records[0].fields){
-                        parentComp.fieldsArray.push(field)
-                      }
-
-
-
-                      console.log(parentComp.fieldsArray);
-                      records.forEach(function(record) {
-                          // console.log('Retrieved', record.get('Insight type'));
-                        
-                          // console.log(record.fields)
-                        
-
-                        // base(parentComp.tableName).find(record.id, function(err, record2){ 
-                        //   var item = {
-                        //     "id": record2.id,
-                        //     "name": record2.fields.Name,
-                        //     "session type": record2.fields["Session type"],
-                        //     "notes": record2.fields.Notes,
-                        //   }
-                        //   parentComp.db.push(item);
-                        // })
-
-                      });
-
-                      // To fetch the next page of records, call `fetchNextPage`.
-                      // If there are more records, `page` will get called again.
-                      // If there are no more records, `done` will get called.
-                      fetchNextPage();
-
-                    }, function done(err) {
-                        if (err) { console.error(err); return; }
-                  });
-                }
+        return fetch(
+          'https://airtable-shr.glitch.me/api?' +
+            serialize({ url,})
+          )
+          .then(r => r.json())
+          .then(data => {
+            if (data && data.data) {
+              data = data.data
+            }
+            if (!data || !data.rows || !data.columns) {
+              return noData
+            }
+            return data
+          })
+          .catch(e => {
+            console.log(e.message)
+            return noData
+          })
+          .then(data => {
+            data.url = url
+            // Get key url for selected Airtbale database
+            parentComp.urlKey = data.sortTiebreakerKey
+            console.log(parentComp.urlKey)
+            
+            // Sets connection settings to desired db
+            var base = new Airtable.base(parentComp.urlKey);
+            
+            
+            // Functions
+            // Connect to selected airtbale database
+            function connectToDb(){
               
-                // To execute functions
-                connectToDb()
-                return data
-              })
-          }
+              // Empty fields array everytime the func is ran
+              parentComp.aTfieldsArray = []
+              var tempFieldsArray = []
+
+              base(parentComp.tableName).select({
+                  // Selecting the first 3 records in Grid view:
+                  maxRecords: 10,
+                  view: "Grid view"
+              }).eachPage(function page(records, fetchNextPage) {
+                  // This function (`page`) will get called for each page of records.
+
+                  // Save name of text fields to array
+                  for(let field in records[0].fields){
+                    tempFieldsArray.push(field)
+                  }
+                  parentComp.aTfieldsArray = tempFieldsArray
+                  
+                  // Save AirTable data to array
+                  for(let record in records){
+                     parentComp.aTData[records[record].id] = records[record].fields
+                  }
+                  
+                  // Get Figma layers
+                  parent.postMessage( { pluginMessage: { type: "find-layers", tempFieldsArray} }, "*" );
+                  
+                  // records.forEach(function(record) {
+                      // console.log('Retrieved', record.get('Insight type'));
+                    
+                      // console.log(record.fields)
+                    // base(parentComp.tableName).find(record.id, function(err, record2){ 
+                    //   var item = {
+                    //     "id": record2.id,
+                    //     "name": record2.fields.Name,
+                    //     "session type": record2.fields["Session type"],
+                    //     "notes": record2.fields.Notes,
+                    //   }
+                    //   parentComp.db.push(item);
+                    // })
+
+                  // });
+
+                  // To fetch the next page of records, call `fetchNextPage`.
+                  // If there are more records, `page` will get called again.
+                  // If there are no more records, `done` will get called.
+                  fetchNextPage();
+
+                }, function done(err) {
+                    if (err) { console.error(err); return; }
+              });
+            }
+          
+            // To execute functions
+            connectToDb()
+            return data
+          })
+        }
 
       scrape(urls)
 
-    //   base('Feedback sessions').select({
-        //     // Selecting the first 3 records in All sessions:
-        //     maxRecords: parentComp.recordsNum,
-        //     view: "All sessions"
-        //       }).eachPage(function page(records, fetchNextPage) {
-        //         // This function (`page`) will get called for each page of records.
-        //           records.forEach(function(record) {
-                    
-        //               // parent.db = record.id;
-        //             base('Feedback sessions').find(record.id, function(err, record2){ 
-        //               var item = {
-        //                 "id": record2.id,
-        //                 "name": record2.fields.Name,
-        //                 "session type": record2.fields["Session type"],
-        //                 "notes": record2.fields.Notes,
-        //               }
-        //               parentComp.db.push(item);
-        //               // console.log(records)
-        //             })
-        //           });
-        //           // To fetch the next page of records, call `fetchNextPage`.
-        //           // If there are more records, `page` will get called again.
-        //           // If there are no more records, `done` will get called.
-        //           fetchNextPage();
-        //       }, function done(err) {
-        //         if (err) { console.error(err); return; }
-        //     });
+      //   base('Feedback sessions').select({
+          //     // Selecting the first 3 records in All sessions:
+          //     maxRecords: parentComp.recordsNum,
+          //     view: "All sessions"
+          //       }).eachPage(function page(records, fetchNextPage) {
+          //         // This function (`page`) will get called for each page of records.
+          //           records.forEach(function(record) {
+                      
+          //               // parent.db = record.id;
+          //             base('Feedback sessions').find(record.id, function(err, record2){ 
+          //               var item = {
+          //                 "id": record2.id,
+          //                 "name": record2.fields.Name,
+          //                 "session type": record2.fields["Session type"],
+          //                 "notes": record2.fields.Notes,
+          //               }
+          //               parentComp.db.push(item);
+          //               // console.log(records)
+          //             })
+          //           });
+          //           // To fetch the next page of records, call `fetchNextPage`.
+          //           // If there are more records, `page` will get called again.
+          //           // If there are no more records, `done` will get called.
+          //           fetchNextPage();
+          //       }, function done(err) {
+          //         if (err) { console.error(err); return; }
+      //     });
+    
+    },
+
+    writeToFigma(){
+      let parentComp = this
+
+      // Gets data from input and saves it to Vue data
+      for(const ref in parentComp.$refs){
+        for(const layer in parentComp.textLayerNames){
+          var figmaLayer = parentComp.textLayerNames[layer]
+          if(figmaLayer == ref){
+            var inputValue = parentComp.$refs[figmaLayer][0].value
+            parentComp.inputFieldValues[figmaLayer] = {"name": figmaLayer, "value": inputValue}
+          }
+        }
+      }
+      
+      let inputFieldValues = parentComp.inputFieldValues
+      let aTData = parentComp.aTData
+
+      let data = {"inputFieldValues": inputFieldValues, "aTData": aTData }
+
+      parent.postMessage(
+        { pluginMessage: { type: "updateFigamaLayers", data}}, "*");
+
     }
+
   },
 
   mounted(){
+    let parent = this;
     this.$refs.baseURLInput.focus()
+    
+    // Listen to events from code.ts
+    onmessage = (event) => {
+    let parentComp = this;
+      if(event.data.pluginMessage.postMessage == "layerNames"){
+        parentComp.textLayerNames = event.data.pluginMessage.layerNamesArr
+        console.log(event.data.pluginMessage);
+      }
+    }
+
   },
 
   created() {}
