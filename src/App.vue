@@ -146,11 +146,11 @@ export default {
     return {
       count: 2,
       db: [],
-      tableName: "Insights",
+      tableName: "",
       // tableName: "Insights",
       recordsNum: 15,
       airtableBase: "",
-      baseURL: "https://airtable.com/shrB9LtTWEQmBuaBn",
+      baseURL: "",
       // baseURL: "https://airtable.com/shrB9LtTWEQmBuaBn",
       urlKey: "",
 
