@@ -6,7 +6,8 @@
   }
 
   .main-view{
-    height: 80%;
+    overflow: scroll;
+    height: 83%;
     padding: 0px 45px 0px 45px;
   }
 

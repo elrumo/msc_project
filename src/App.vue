@@ -21,16 +21,30 @@
         
         <!-- Content view 1 -->
         <coral-panel>
-            <label id="label" class="coral-FieldLabel f-s-14">Base URL</label>
+          <div class="p-b-10">
+            <label id="label-API-key" class="coral-FieldLabel f-s-14">API Key</label>
             <input
               autofocus
               type="text"
-              v-model="baseURL"
+              v-model="apiKey"
+              class="coral-Form-field _coral-Textfield"
+              ref="apiKeyInput"
+              name="baseURLInput"
+              placeholder="API Key from Airbase"
+            >
+          </div>
+          
+          <div>
+            <label id="label-base-key" class="coral-FieldLabel f-s-14">Base Key</label>
+            <input
+              type="text"
+              v-model="baseKey"
               class="coral-Form-field _coral-Textfield"
               ref="baseURLInput"
               name="baseURLInput"
-              placeholder="Base URL from Airbase"
+              placeholder="Base Key from Airbase"
             >
+          </div>
           <!-- Instructions  -->
           <ul class="coral-List--minimal p-t-15 f-s-12 f-w-200">
             <li class="coral-List-item">1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus adipiscing arcu pretium.</li>
@@ -60,7 +74,7 @@
         </coral-panel>
 
         <!-- Content view 3 -->
-        <coral-panel class="p-b-50 m-b-50">
+        <coral-panel class="p-b-10">
           
           <p class="coral-Body--XS p-b-5">Select layers to fill with data.</p>
 
@@ -135,24 +149,20 @@
 import Vuex from 'vuex'
 import * as Airtable from 'airtable'
 
-Airtable.configure({
-    endpointUrl: 'https://api.airtable.com',
-    apiKey: 'keyExKGas9NCSngJL'
-});
-
 export default {
   name: "App",
   data() {
     return {
       count: 2,
       db: [],
-      tableName: "",
-      // tableName: "Insights",
       recordsNum: 15,
-      airtableBase: "",
-      baseURL: "",
-      // baseURL: "https://airtable.com/shrB9LtTWEQmBuaBn",
-      urlKey: "",
+
+      tableName: "Insights",
+      // tableName: "",
+      baseKey: "appTSdEpXSi8tcX0J",
+      // baseKey: "",
+      apiKey: "keyExKGas9NCSngJL",
+      // apiKey: "",
 
       aTData: {},
       aTfieldsArray: [],
@@ -183,113 +193,52 @@ export default {
     getItems(){
       const parentComp = this
       const fieldsArrayConst = parentComp.aTfieldsArray
+
+      // Sets connection settings to desired db
+      var base = new Airtable({apiKey: parentComp.apiKey}).base(parentComp.baseKey);
+        
       
-      var urls = parentComp.baseURL
-      console.log(urls);
-      const noData = { rows: [], columns: [], url: '' }
+      // Functions
+      // Connect to selected airtbale database
+      function connectToDb(){
+        
+        // Empty fields array everytime the func is ran
+        parentComp.aTfieldsArray = []
+        var tempFieldsArray = []
 
-      function serialize(obj) {
-        const str = []
-        for (const p in obj) {
-          if (obj.hasOwnProperty(p) && obj[p]) {
-            str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
-          }
-        }
-        return str.join('&')
-      }      
+        base(parentComp.tableName).select({
+            // Selecting the first 15 records in Grid view:
+            maxRecords: parentComp.recordsNum,
+            view: "Grid view"
+        }).eachPage(function page(records, fetchNextPage) {
+            // This function (`page`) will get called for each page of records.
 
-      function scrape(url) {
-
-        return fetch(
-          'https://airtable-shr.glitch.me/api?' +
-            serialize({ url,})
-          )
-          .then(r => r.json())
-          .then(data => {
-            if (data && data.data) {
-              data = data.data
+            // Save name of text fields to array
+            for(let field in records[0].fields){
+              tempFieldsArray.push(field)
             }
-            if (!data || !data.rows || !data.columns) {
-              return noData
+            parentComp.aTfieldsArray = tempFieldsArray
+            
+            // Save AirTable data to array
+            for(let record in records){
+                parentComp.aTData[records[record].id] = records[record].fields
             }
-            return data
-          })
-          .catch(e => {
-            console.log(e.message)
-            return noData
-          })
-          .then(data => {
-            data.url = url
-            // Get key url for selected Airtbale database
-            parentComp.urlKey = data.sortTiebreakerKey
-            console.log(parentComp.urlKey)
             
-            // Sets connection settings to desired db
-            var base = new Airtable.base(parentComp.urlKey);
+            // Get Figma layers
+            parent.postMessage( { pluginMessage: { type: "find-layers", tempFieldsArray} }, "*" );
             
-            
-            // Functions
-            // Connect to selected airtbale database
-            function connectToDb(){
-              
-              // Empty fields array everytime the func is ran
-              parentComp.aTfieldsArray = []
-              var tempFieldsArray = []
 
-              base(parentComp.tableName).select({
-                  // Selecting the first 3 records in Grid view:
-                  maxRecords: parentComp.recordsNum,
-                  view: "Grid view"
-              }).eachPage(function page(records, fetchNextPage) {
-                  // This function (`page`) will get called for each page of records.
+            // To fetch the next page of records, call `fetchNextPage`.
+            // If there are more records, `page` will get called again.
+            // If there are no more records, `done` will get called.
+            fetchNextPage();
 
-                  // Save name of text fields to array
-                  for(let field in records[0].fields){
-                    tempFieldsArray.push(field)
-                  }
-                  parentComp.aTfieldsArray = tempFieldsArray
-                  
-                  // Save AirTable data to array
-                  for(let record in records){
-                     parentComp.aTData[records[record].id] = records[record].fields
-                  }
-                  
-                  // Get Figma layers
-                  parent.postMessage( { pluginMessage: { type: "find-layers", tempFieldsArray} }, "*" );
-                  
-                  // records.forEach(function(record) {
-                      // console.log('Retrieved', record.get('Insight type'));
-                    
-                      // console.log(record.fields)
-                    // base(parentComp.tableName).find(record.id, function(err, record2){ 
-                    //   var item = {
-                    //     "id": record2.id,
-                    //     "name": record2.fields.Name,
-                    //     "session type": record2.fields["Session type"],
-                    //     "notes": record2.fields.Notes,
-                    //   }
-                    //   parentComp.db.push(item);
-                    // })
-
-                  // });
-
-                  // To fetch the next page of records, call `fetchNextPage`.
-                  // If there are more records, `page` will get called again.
-                  // If there are no more records, `done` will get called.
-                  fetchNextPage();
-
-                }, function done(err) {
-                    if (err) { console.error(err); return; }
-              });
-            }
-          
-            // To execute functions
-            connectToDb()
-            return data
-          })
-        }
-
-      scrape(urls)
+          }, function done(err) {
+              if (err) { console.error(err); return; }
+        });
+      }
+        
+        connectToDb()
     },
 
     writeToFigma(){
@@ -320,7 +269,8 @@ export default {
 
   mounted(){
     let parent = this;
-    this.$refs.baseURLInput.focus()
+    debugger
+    this.$refs.apiKeyInput.focus()
     
     // Listen to events from code.ts
     onmessage = (event) => {

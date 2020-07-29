@@ -1,5 +1,5 @@
 {
-  "name": "linktree",
+  "name": "Ipsos Project",
   "description": "",
   "scripts": {
     "build": "webpack --mode=production",

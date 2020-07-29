@@ -85,7 +85,7 @@ figma.ui.onmessage = msg => {
               fills[0].color.g = 201/255
               fills[0].color.b = 126/255
               child.children[bar].fills = fills
-              console.log(child.children[bar].fills);
+              // console.log(child.children[bar].fills);
             }
 
             if(dataArray[dbEntry]["Insight type"] == "Neutral"){
@@ -95,12 +95,12 @@ figma.ui.onmessage = msg => {
               fills[0].color.g = 196/255
               fills[0].color.b = 196/255
               child.children[bar].fills = fills
-              console.log(child.children[bar].fills);
+              // console.log(child.children[bar].fills);
               
             }
             
             if(dataArray[dbEntry]["Insight type"] == "Caution"){
-              console.log("Caution");
+              // console.log("Caution");
               if(child.children[bar].name == "high" ){
                 var fills = clone(child.children[bar].fills)
                 fills[0].color.r = 254/255
@@ -118,7 +118,7 @@ figma.ui.onmessage = msg => {
             }
 
             if(dataArray[dbEntry]["Insight type"] == "Concerning"){
-              console.log("Caution");
+              // console.log("Caution");
               if(child.children[bar].name == "high" || child.children[bar].name == "mid" ){
                 var fills = clone(child.children[bar].fills)
                 fills[0].color.r = 247/255
