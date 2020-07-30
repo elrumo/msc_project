@@ -6,7 +6,7 @@
     <h1 class="coral-Heading--XS p-t-5">Airtable to Figma</h1>
 
 
-    <coral-wizardview class="h-full">
+    <coral-wizardview>
       
       <!-- TODO: #3 Create components instead of writing everything in here as pure html -->
       <!-- Steps -->
@@ -18,7 +18,7 @@
 
       <!-- Content views -->
       <coral-panelstack coral-wizardview-panelstack="" class="p-t-25">
-        
+
         <!-- Content view 1 -->
         <coral-panel>
           <div class="p-b-10">
@@ -76,6 +76,31 @@
         <!-- Content view 3 -->
         <coral-panel class="p-b-10">
           
+          <p class="coral-Body--XS p-b-5">Select the card(s) to use on this page.</p>
+
+          <div v-for="card in cardsToUse" :key="card.num" class="p-b-5">
+            <form class="coral-Form coral-Form--vertical">
+              <label :aria-label="card" class="coral-Form-fieldlabel">Card {{ card.num }}</label>
+              
+              <coral-select :labelledby="card" :ref="card" placeholder="Choose an item">
+                <!-- TODO: #2 Each item should be a layer on Figma, use a for each. -->
+                <coral-select-item
+                  v-for="cardType in cardTypes"
+                  :key="cardType"
+                  :value="cardType"
+                >
+                  {{ cardType }}
+                </coral-select-item>
+                <coral-select-item value=""><i style="color: #959595;">Choose an item</i></coral-select-item>
+              </coral-select>
+
+            </form>
+          </div>
+        </coral-panel>
+
+        <!-- Content view 4 -->
+        <coral-panel class="p-b-10">
+          
           <p class="coral-Body--XS p-b-5">Select layers to fill with data.</p>
 
           <div v-for="layer in textLayerNames" :key="layer" class="p-b-5">
@@ -99,6 +124,7 @@
         </coral-panel>
 
       </coral-panelstack> 
+
 
       <!-- Left Button -->
       <coral-panelstack coral-wizardview-panelstack="" class="float-left panel-btns">
@@ -168,6 +194,17 @@ export default {
       aTfieldsArray: [],
       textLayerNames: [],
 
+      cardTypes:  [
+        "Insights"
+      ],
+      cardLayers: [],
+      cardsToUse: [
+        {
+          num: 1,
+          name: ""
+        }
+      ],
+
       inputFieldValues: {},
     };
   },
@@ -183,7 +220,8 @@ export default {
     // TODO: #1 Add visual loader when data is being fetched. 
 
     focusOnInput(){
-        this.$refs.tableNameInput.focus()
+      parent.postMessage({ pluginMessage: { type: "test"}}, "*");
+        // this.$refs.tableNameInput.focus()
     },
     
     closePlugin: function() {
@@ -260,8 +298,8 @@ export default {
 
       let data = {"inputFieldValues": inputFieldValues, "aTData": aTData }
 
-      parent.postMessage(
-        { pluginMessage: { type: "updateFigamaLayers", data}}, "*");
+      parent.postMessage({ pluginMessage: { type: "test", data}}, "*");
+        // { pluginMessage: { type: "updateFigmaLayers", data}}, "*");
 
     }
 
@@ -269,8 +307,9 @@ export default {
 
   mounted(){
     let parent = this;
-    debugger
-    this.$refs.apiKeyInput.focus()
+    
+    // Focus on form on crated
+    // this.$refs.apiKeyInput.focus()
     
     // Listen to events from code.ts
     onmessage = (event) => {

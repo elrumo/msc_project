@@ -15,6 +15,41 @@ figma.ui.resize(380, 440)
 // posted message.
 figma.ui.onmessage = msg => {
   let parent = this
+  let cardsInUse = {}
+  
+  // Create page report with name "Executive Summary"
+  // Find what is the furthest element on the right X axis and get its X value
+  function createPageReport(){
+    let layers =  figma.currentPage.children
+
+    let getFurthestX = function(){
+      let layersPosX = []
+      
+      for(let layer in layers){
+        layersPosX.push(layers[layer].x)
+      }
+      
+      var largestX = layersPosX[0]
+      
+      for(let x in layersPosX){
+        if(largestX < layersPosX[x]){
+          largestX = layersPosX[x]
+        }
+      }
+      return largestX
+    }
+
+    getFurthestX()
+    
+    let newFrameId = figma.createFrame().id
+    let newFrame = figma.currentPage.findOne(n => n.id === newFrameId)
+    
+    newFrame.name = "Executive Summary"
+    newFrame.x = getFurthestX() * 1.8
+    // newFrame.re = 1440
+    newFrame.resize(1440, 3000)
+  }
+
   // One way of distinguishing between different types of messages sent from
   // your HTML page is to use an object with a "type" property like this.
   if (msg.type === 'create-rectangles') {
@@ -47,13 +82,23 @@ figma.ui.onmessage = msg => {
   }
 
   // Write data from AirTable to Figma
-  if (msg.type == "updateFigamaLayers"){
-      
+  if (msg.type == "test"){
+
+    // Get "Insights" card component from the Figma library, the number below is the key fro the Insights card.
+    figma.importComponentByKeyAsync("16324faa210a930553c134d73595c7e8fcd3f87a").then((node)=>{
+      cardsInUse.insights = node
+    });
+
+  }
+
+  if (msg.type == "updateFigmaLayers"){
+    
     let card = figma.currentPage.selection[0]
-    let dataLen = Object.keys(msg.data.aTData).length // Get lenght of data object
+    let dataLen = Object.keys(msg.data.aTData).length // Get length of data object
     
     let dataArray = []
     
+
     // Creates array with object data so that it can be iterables through indexes
     for(let item in msg.data.aTData){
       dataArray.push(msg.data.aTData[item])

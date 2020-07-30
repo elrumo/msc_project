@@ -11,6 +11,14 @@
     min-width: 100px;
 }
 
+.coral--large ._coral-Textfield{
+    width: 100%;
+}
+
+.coral--large ._coral-Dropdown{
+    width: 100%;
+}
+
 .coral-List--minimal>.coral-List-item{
     padding-bottom: 8px !important;
 }

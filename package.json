@@ -1,5 +1,5 @@
 {
-  "name": "Ipsos Project",
+  "name": "ipsos_project",
   "description": "",
   "scripts": {
     "build": "webpack --mode=production",
