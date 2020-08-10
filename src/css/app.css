@@ -11,6 +11,13 @@
     padding: 0px 45px 0px 45px;
   }
 
+  .accordion{
+    width: 110%;
+    transform: translateX(-50%);
+    left: 50%;
+    position: relative;
+  }
+
   .float-left{
     left: 10%;
   }

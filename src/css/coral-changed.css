@@ -20,5 +20,12 @@
 }
 
 .coral-List--minimal>.coral-List-item{
-    padding-bottom: 8px !important;
+    opacity: 0.8;
+    padding-bottom: 2px !important;
+}
+
+.coral--large ._coral-Textfield--multiline{
+    max-width: 290px;
+    min-width: 290px;
+    height: 60%;
 }
