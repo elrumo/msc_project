@@ -1,0 +1,35 @@
+._coral-Button {
+    border-radius: 6px !important;
+}
+
+.coral--large{
+    opacity: 1 !important;
+}
+
+.coral--large ._coral-Button{
+    min-height: 36px;
+    min-width: 100px;
+}
+
+.coral--large ._coral-Textfield{
+    width: 100%;
+}
+
+.coral--large ._coral-Dropdown{
+    width: 100%;
+}
+
+.coral-List--minimal>.coral-List-item{
+    opacity: 0.8;
+    padding-bottom: 2px !important;
+}
+
+.coral--large ._coral-Textfield--multiline{
+    max-width: 290px;
+    min-width: 290px;
+    height: 60%;
+}
+
+coral-card-asset{
+    min-height: 10px !important;
+}
