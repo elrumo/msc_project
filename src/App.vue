@@ -3,7 +3,6 @@
     
     <div class="nav-bar panel-btns"></div>
     
-    <h1 class="coral-Heading--XS p-t-5">Airtable to Figma</h1>
 
 
     <coral-wizardview>
@@ -22,10 +21,13 @@
       </coral-steplist>
 
       <!-- Content views -->
-      <coral-panelstack coral-wizardview-panelstack="" class="p-t-25">
+      <coral-panelstack coral-wizardview-panelstack="" class="">
 
         <!-- Content view 1 -->
         <coral-panel>
+          <h1 class="coral-Heading--XS p-t-10 p-b-15">Airtable to Figma</h1>
+
+          <!-- API Key -->
           <div class="p-b-10">
             <label id="label-API-key" class="coral-FieldLabel f-s-14">API Key</label>
             <input
@@ -38,7 +40,8 @@
               placeholder="API Key from Airbase"
             >
           </div>
-          
+
+          <!-- Base Key -->
           <div>
             <label id="label-base-key" class="coral-FieldLabel f-s-14">Base Key</label>
             <input
@@ -50,10 +53,11 @@
               placeholder="Base Key from Airbase"
             >
           </div>
+
           <!-- Instructions  -->
-          <ul class="coral-List--minimal p-t-15 f-s-12 f-w-200">
+          <ul class="coral-List--minimal p-t-5 m-b-0 f-w-200">
             <li class="coral-List-item">
-              <h3 class="coral-Heading--XXS">
+              <h3 class="coral-Heading--XXXS m-b-5">
                 How can I get my API Key? 
               </h3>
               <p class="coral-Body--XS">
@@ -61,7 +65,7 @@
               </p>
             </li>
             <li class="coral-List-item">
-              <h3 class="coral-Heading--XXS">
+              <h3 class="coral-Heading--XXXS m-b-5 m-t-5">
                 How can I get the base Key?
               </h3>
               <p class="coral-Body--XS">
@@ -73,28 +77,37 @@
         
         <!-- Content view 2 -->
         <coral-panel>
-          <label id="label" class="coral-FieldLabel f-s-14">Table Name</label>
-            <input
-              type="text"
-              v-model="tableName"
-              class="coral-Form-field _coral-Textfield"
-              ref="tableNameInput"
-              name="tableNameInput"
-              placeholder="Name of table"
-            >
-           <!-- Instructions  -->
-          <ul class="coral-List--minimal p-t-15 f-s-12 f-w-200">
-            <li class="coral-List-item">1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus adipiscing arcu pretium.</li>
-            <li class="coral-List-item">2. Semper quisque. Molestie sit vitae in pretium feugiat feugiat eu amet libero. Feugiat habitasse</li>
-            <li class="coral-List-item">3. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus adipiscing arcu pretium.</li>
-          </ul>
+          <h1 class="coral-Heading--XS p-t-10 p-b-15">Select table</h1>
 
+          <label id="label" class="coral-FieldLabel f-s-14"> Table Name </label>
+          <input
+            type="text"
+            v-model="tableName"
+            class="coral-Form-field _coral-Textfield"
+            ref="tableNameInput"
+            name="tableNameInput"
+            placeholder="Name of table"
+          >
+          
+          <!-- Instructions  -->
+          <div class="p-t-40">
+            <coral-card variant="quiet">
+              <coral-card-asset class="opacity-80">
+                <img alt="" :src="images.tables">
+              </coral-card-asset>
+              <coral-card-content class="opacity-80" style="transform: translateY(-5px)">
+                <h3 class="coral-body--S f-s-16 m-0">Type the name of a table from your AirTable database as seen on the example image.</h3>
+              </coral-card-content>
+            </coral-card>
+          </div>
         </coral-panel>
 
         <!-- Content view 3 -->
         <!-- Type of card selection -->
         <coral-panel class="p-b-10">
-          <p class="coral-Body--XS p-b-5">Select the card(s) to use on this page.</p>
+          <h1 class="coral-Heading--XS p-t-10 p-b-15">Report components</h1>
+
+          <p class="coral-Body--XS p-b-5">Select the components to use on this page.</p>
 
           <div>
             <div v-for="card in cardsToUse" :key="card.card">
@@ -103,7 +116,7 @@
                   :id="card.cards"
                   :labelledby="card.cards"
                   ref="cardsToUse"
-                  placeholder="Choose an item"
+                  placeholder="Choose a component"
                 >
                   <coral-select-item
                     v-for="cardType in cardTypes"
@@ -112,7 +125,7 @@
                   >
                     {{ cardType.name }}
                   </coral-select-item>
-                  <coral-select-item value=""><i style="color: #959595;">Choose an item</i></coral-select-item>
+                  <coral-select-item value=""><i style="color: #959595;">Choose a component</i></coral-select-item>
                 </coral-select>
 
               </form>
@@ -125,7 +138,7 @@
                 @click="addNewCard"
                 class="w-full"
               >
-                Add another card
+                Add another component
             </button>
           </div>
         </coral-panel>
@@ -169,7 +182,7 @@
        
         <!-- Content view 5 -->
         <coral-panel>
-          <p class="coral-Body--XS p-b-5">Select layers to fill with data.</p>
+          <p class="coral-Body--XS p-b-5">The report has been created.</p>
           
         </coral-panel>
 
@@ -250,14 +263,14 @@
         & gets text layers to send them over to the Vue app. -->
         <coral-panel class="u-coral-margin">
           <button is="coral-button" variant="primary" coral-wizardview-next @click="saveInputData">
-            Next
+            Create Report
           </button>
         </coral-panel>
 
         <!-- 5 -->
         <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="primary" coral-wizardview-next @click="saveInputData" >
-            Next
+          <button is="coral-button" variant="primary" coral-wizardview-next @click="closePlugin">
+            Close
           </button>
         </coral-panel>
 
@@ -287,9 +300,10 @@ export default {
       db: [],
       recordsNum: 15,
 
-      // tableName: "",
-      // baseKey: "",
-      // apiKey: "",
+      images:{
+        tables: require("./assets/images/airtable_tables.jpg")
+      },
+
       tableName: "Insights",
       baseKey: "appTSdEpXSi8tcX0J",
       apiKey: "keyExKGas9NCSngJL",
@@ -341,7 +355,6 @@ export default {
     },
     
     // TODO: #1 Add visual loader when data is being fetched. 
-
     fetchComponentCards(){
       // Get input data and save to Vue.
       let parentComp = this

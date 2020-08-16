@@ -29,3 +29,7 @@
     min-width: 290px;
     height: 60%;
 }
+
+coral-card-asset{
+    min-height: 10px !important;
+}

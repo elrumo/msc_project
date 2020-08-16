@@ -142,12 +142,6 @@ figma.ui.onmessage = msg => {
     let newPage = createPageReport()
     exec_page.pageNode = newPage
     var topicFrame
-    let dataArray = []
-    
-    // Creates array with object data so that it can be iterated through indexes
-    for(let item in msg.data.aTData){
-      dataArray.push(msg.data.aTData[item])
-    }
 
     exec_page.topics = {}
     for(const component in componentsInUse.components){
@@ -160,7 +154,6 @@ figma.ui.onmessage = msg => {
             let paddingCards = 52
             let topicPaddingBottom = 60
             let lastFrameNodeY = ""
-            let insightInstances = []
             let lastTopicFrame = []
 
             // Create a new frame for each topic
@@ -184,7 +177,7 @@ figma.ui.onmessage = msg => {
                 lastFrameNodeY = topicFrame.y + topicFrame.height
               }
               
-              
+              // Create Topic group title text
               figma.importComponentByKeyAsync("6a821d6b7ec1f468dda01de1a86e8fc8ca5e3ebe").then((nodeText)=>{
                 let topicHeading = nodeText.createInstance()
                 
@@ -209,36 +202,121 @@ figma.ui.onmessage = msg => {
 
                 for(const card in msg.data.aTData){
                   // Check if data has same Topic as group, if so, make it child of the group
-                  if(msg.data.aTData[card].Topic[0] == topicId){
+                  if(msg.data.aTData[card].Topic !== undefined && msg.data.aTData[card].Topic[0] == topicId){
+                  
                     // Create new instance of library component 
                     let insightInstance = componentsInUse.components.insights.createInstance()
-                    insightInstances.push(insightInstance)
                     topicGroupFrame.frameNode.appendChild(insightInstance)
 
-                    if (gridCards % 2 == 0) {
-
-                      insightInstance.x = (pageWidth - ((insightInstance.width * 2) + paddingCards ))/2
-                      insightInstance.y = lastInsightY
-                      lastInsightY = insightInstance.y + insightInstance.height + paddingCards
-                      // TODO: #8 Change the Topic's frame y position
-                      //  Change Topic group frame's height to match the inner content
-                      topicGroupFrame.frameNode.resize(1440, lastInsightY)
-                      
-                    } else if (gridCards % 2 != 0) {
-                      insightInstance.x = (pageWidth - ((insightInstance.width * 2) ))/2 + insightInstance.width
-                      insightInstance.y = lastInsightYright
-                      lastInsightYright = lastInsightY
+                    // Set position of Insight card within the Topic group
+                    function setPositionCard() {
+                      // Set position of insight cards within the Topic group
+                      if (gridCards % 2 == 0) {
+                        insightInstance.x = (pageWidth - ((insightInstance.width * 2) + paddingCards ))/2
+                        insightInstance.y = lastInsightY
+                        lastInsightY = insightInstance.y + insightInstance.height + paddingCards
+                        //  Change Topic group frame's height to match the inner content
+                        topicGroupFrame.frameNode.resize(1440, lastInsightY)
+                        
+                      } else if (gridCards % 2 != 0) {
+                        insightInstance.x = (pageWidth - ((insightInstance.width * 2) ))/2 + insightInstance.width
+                        insightInstance.y = lastInsightYright
+                        lastInsightYright = lastInsightY
+                      }
+                      // Layout newly crated insight cards properly
+                        // then ->>
+                      //  height and y position of Topic group based on inner child components i.e. The insight cards
                     }
-                    // Layout newly crated insight cards properly
-                      // then ->>
-                    //  height and y position of Topic group based on inner child components i.e. The insight cards
-                    gridCards++
+                    // Change text fields with AirTable data
+                    function updateFigmaText() {
+                      for(const input in msg.data.inputFieldValues.insights){
+                        let tableField = msg.data.inputFieldValues.insights[input]
+                        let layerToChange = insightInstance.findChildren(n => n.name === input)[0]
+                        let airtData = msg.data.aTData[card][tableField]
+                        
+                        try{ figma.loadFontAsync(layerToChange.fontName).then( function(){
+                            // Check type of AirTable data received
+                            switch (typeof airtData) {
+                              case "object":
+                                for(const obj in airtData){
+                                  // If atFieldValue[obj] is also an object, it will be also be an image
+                                  if(typeof airtData[obj] == "object"){
+                                    layerToChange.characters = airtData[obj].url 
+                                  }else{
+                                    layerToChange.characters = airtData[obj];
+                                  }
+                                }
+                                break;
+                              case "string":
+                                layerToChange.characters = airtData
+                              default:
+                                break;
+                            }
+                          })
+                        }catch(error){
+                          console.log(error)
+                        }
+                      }
+                    }
+                    // Change colour of bars
+                    function changeColourBars() {
+                      const importanceBar = insightInstance.findChildren(n => n.name === "importance-bar")[0];
+                      if(msg.data.aTData[card]["Insight type"] == "Positive"){
+                        for(const bar in importanceBar.children){
+                          const fills = clone(importanceBar.children[bar].fills)
+                          fills[0].color.r = 79 /255
+                          fills[0].color.g = 201 /255
+                          fills[0].color.b = 126 /255
+                          importanceBar.children[bar].fills = fills
+                        }
+                      }
+                      if(msg.data.aTData[card]["Insight type"] == "Caution"){
+                        for(const bar in importanceBar.children){
+                          let fills = clone(importanceBar.children[bar].fills)
+                          if(importanceBar.children[bar].name == "high") {
+                            fills[0].color.r = 254 /255
+                            fills[0].color.g = 236 /255
+                            fills[0].color.b = 198 /255
+                            importanceBar.children[bar].fills = fills
+                          }else{
+                            fills[0].color.r = 253 /255
+                            fills[0].color.g = 190 /255
+                            fills[0].color.b = 65 /255
+                            importanceBar.children[bar].fills = fills
+                          }
+                        }
+                      }
+                      if(msg.data.aTData[card]["Insight type"] == "Concerning"){
+                        for(const bar in importanceBar.children){
+                          const fills = clone(importanceBar.children[bar].fills)
+                          if(importanceBar.children[bar].name == "low") {
+                            fills[0].color.r = 255 /255
+                            fills[0].color.g = 108 /255
+                            fills[0].color.b = 126 /255
+                            importanceBar.children[bar].fills = fills
+                          }else{
+                            fills[0].color.r = 255 /255
+                            fills[0].color.g = 211 /255
+                            fills[0].color.b = 216 /255
+                            importanceBar.children[bar].fills = fills
+                          }
+                        }
+                      }
+                    }
+
+                    setPositionCard()
+                    updateFigmaText()
+                    changeColourBars()
+                    gridCards++ 
                   }
+
                 }
                 
                 // Set the new y position of the Topic frames based on the content inside.
                 if (lastTopicFrame.frameNode) {
-                  topicGroupFrame.frameNode.y = lastTopicFrame.frameNode.height + lastTopicFrame.frameNode.y
+                  topicGroupFrame.frameNode.y = lastTopicFrame.frameNode.height + lastTopicFrame.frameNode.y + paddingCards
+                  console.log(topicGroupFrame.frameNode.y);
+                  
                 }
                 lastTopicFrame = topicGroupFrame
                 
@@ -254,122 +332,8 @@ figma.ui.onmessage = msg => {
                 id: msg.data.topicsTable[i].id,
                 nodes: {}
               }
+              
             }
-
-            function createInsightCards() {
-              for(const card in msg.data.aTData){
-                // Create new instance of library component 
-                let instanceCreated = componentsInUse.components.insights.createInstance()
-                
-                // Group cards by topic
-
-
-                // Pushes the newly created card component to an array with all the instances that have been created.
-                instances.push(instanceCreated)
-
-                if (gridCards % 2 == 0) {
-                  instanceCreated.x = (pageWidth - ((instanceCreated.width * 2) + paddingCards ))/2
-                  instanceCreated.y =  topicPaddingBottom
-                } else if (gridCards % 2 != 0) {
-                  instanceCreated.x = (pageWidth - ((instanceCreated.width * 2) ))/2 + instanceCreated.width
-                  instanceCreated.y =  topicPaddingBottom
-                } else if (gridCards % 2 == 0) {
-                  instanceCreated.x = (pageWidth - ((instanceCreated.width * 2) + paddingCards ))/2
-                  instanceCreated.y =  instanceCreated.height + paddingCards + topicPaddingBottom
-                } else if (gridCards % 2 != 0) {
-                  instanceCreated.x = (pageWidth - ((instanceCreated.width * 2) ))/2 + instanceCreated.width
-                  instanceCreated.y =  instanceCreated.height + paddingCards + topicPaddingBottom
-                }
-                // console.log(gridCards);
-                
-                // console.log(instanceCreated);              
-                
-                // Change colour of top card colour bar
-                const importanceBar = instances[num].findChildren(n => n.name === "importance-bar")[0];
-                if(msg.data.aTData[card]["Insight type"] == "Positive"){
-                  for(const bar in importanceBar.children){
-                    const fills = clone(importanceBar.children[bar].fills)
-                    fills[0].color.r = 79 /255
-                    fills[0].color.g = 201 /255
-                    fills[0].color.b = 126 /255
-                    importanceBar.children[bar].fills = fills
-                  }
-                }
-                if(msg.data.aTData[card]["Insight type"] == "Caution"){
-                  for(const bar in importanceBar.children){
-                    let fills = clone(importanceBar.children[bar].fills)
-                    if(importanceBar.children[bar].name == "high") {
-                      fills[0].color.r = 254 /255
-                      fills[0].color.g = 236 /255
-                      fills[0].color.b = 198 /255
-                      importanceBar.children[bar].fills = fills
-                    }else{
-                      fills[0].color.r = 253 /255
-                      fills[0].color.g = 190 /255
-                      fills[0].color.b = 65 /255
-                      importanceBar.children[bar].fills = fills
-                    }
-                  }
-                }
-                if(msg.data.aTData[card]["Insight type"] == "Concerning"){
-                  for(const bar in importanceBar.children){
-                    const fills = clone(importanceBar.children[bar].fills)
-                    if(importanceBar.children[bar].name == "low") {
-                      fills[0].color.r = 255 /255
-                      fills[0].color.g = 108 /255
-                      fills[0].color.b = 126 /255
-                      importanceBar.children[bar].fills = fills
-                    }else{
-                      fills[0].color.r = 255 /255
-                      fills[0].color.g = 211 /255
-                      fills[0].color.b = 216 /255
-                      importanceBar.children[bar].fills = fills
-                    }
-                  }
-                }
-
-                // Set text to layers
-                for(const layer in componentsInUse.layers.insights){
-                  
-                  let layerName = componentsInUse.layers.insights[layer]
-                  let atFieldName = msg.data.inputFieldValues.insights[layerName]
-                  let atFieldValue = msg.data.aTData[card][atFieldName]
-                  
-                  // Find the layer in the newly created component that the same value as "layerName"
-                  const textNode = instances[num].findChildren(n => n.name === layerName)[0]
-                  const insightType = msg.data.aTData[card]["Insight type"]
-
-                  
-                  // Insert AirTable field values into their corresponding text layers on Figma
-                  try{ figma.loadFontAsync(textNode.fontName).then( function(){
-                      // Check type of AirTable data recieved
-                      switch (typeof atFieldValue) {
-                        case "object":
-                          for(const obj in atFieldValue){
-                            // If atFieldValue[obj] is also an object, it will be also be an image
-                            if(typeof atFieldValue[obj] == "object"){
-                              textNode.characters = atFieldValue[obj].url 
-                            }else{
-                              textNode.characters = atFieldValue[obj];
-                            }
-                          }
-                          break;
-                        case "string":
-                          textNode.characters = atFieldValue
-                        default:
-                          break;
-                      }
-                    })
-                  }catch(error){
-                    console.log(error)
-                  }
-                }
-                num++
-                // TODO: Arrange cards in a grid based on "Topic"
-                gridCards++
-              }
-            }
-            // createInsightCards()
           });
           break;
         case "exec_summary":
@@ -420,8 +384,6 @@ figma.ui.onmessage = msg => {
     }
   }
 
-
-
   if (msg.type == "updateFigmaLayers2"){
     
     // createPageReport()
@@ -436,12 +398,12 @@ figma.ui.onmessage = msg => {
     //   dataArray.push(msg.data.aTData[item])
     // }
     
-    for(var i = 1; i < dataLen; i++){  // Make however many copies of the selection
-      figma.currentPage.findOne(n => n.name === card.name).clone()
-      figma.currentPage.findOne(n => n.name === card.name).y += card.height + 30  
-    }
+    // for(var i = 1; i < dataLen; i++){  // Make however many copies of the selection
+    //   figma.currentPage.findOne(n => n.name === card.name).clone()
+    //   figma.currentPage.findOne(n => n.name === card.name).y += card.height + 30  
+    // }
     
-    let allCards = figma.currentPage.findAll(n => n.name === card.name)
+    // let allCards = figma.currentPage.findAll(n => n.name === card.name)
 
     // Iterate through the data array ->
       // All newly crated cards         -> 
