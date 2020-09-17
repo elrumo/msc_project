@@ -147,7 +147,8 @@
         <!-- Connect cad layer names with AirTable data -->
         <coral-panel>
             <div v-for="component in cardsToUse" :key="component.card+'_component'" class="p-b-20">
-              <p class="f-w-700 f-s-16 m-b-5 m-t-0">{{ component.name }}</p>
+              <h1 class="coral-Heading--XS p-t-10 p-b-15">{{ component.name }}</h1>
+
               <div v-for="layer in textLayerNames[component.value]" :key="layer">
                 <div v-if="layer == 'title-default'" class="p-t-10 p-b-15">
                 </div>  
@@ -182,7 +183,7 @@
        
         <!-- Content view 5 -->
         <coral-panel>
-          <p class="coral-Body--XS p-b-5">The report has been created.</p>
+          <p class="coral-Body--XS m-t-50">The report has been created. You can now close the plugin.</p>
           
         </coral-panel>
 
