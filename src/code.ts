@@ -340,16 +340,20 @@ figma.ui.onmessage = msg => {
           figma.importComponentByKeyAsync("a9abf7679808249ff0e15c9b51bc465ce1381f0c").then((node)=>{
             // Creates new instance of component & gets text layers and send them over to the Vue app.
             let execSummaryInstance = componentsInUse.components.exec_summary
+            let newExecSummary = execSummaryInstance.createInstance()
 
-            instances.push(execSummaryInstance.createInstance())
+            instances.push(newExecSummary)
 
             let currentNode
+
+            newPage.appendChild(newExecSummary)
+            
 
             for(const page in newPages){
               if(newPages[page].name == "Executive Summary"){
                 for(const instance in instances){
                   if(instances[instance].name == "pages/exec_summary/hero"){
-                    instances[instance].x = newPages[page].node.x
+                    // instances[instance].x = newPages[page].node.x
                     currentNode = instances[instance]
                     console.log("currentNode: ", currentNode);
                     
