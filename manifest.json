@@ -1,7 +1,7 @@
 {
   "name": "Ipsos Project v2",
   "id": "875381008922888583",
-  "api": "1.0.0",
+  "api": "2.0.0",
   "main": "build/main.js",
   "ui": "build/ui.html"
 }
