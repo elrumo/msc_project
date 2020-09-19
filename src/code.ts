@@ -8,7 +8,7 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
 
-figma.ui.resize(380, 480)
+figma.ui.resize(400, 580)
 
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
@@ -340,16 +340,20 @@ figma.ui.onmessage = msg => {
           figma.importComponentByKeyAsync("a9abf7679808249ff0e15c9b51bc465ce1381f0c").then((node)=>{
             // Creates new instance of component & gets text layers and send them over to the Vue app.
             let execSummaryInstance = componentsInUse.components.exec_summary
+            let newExecSummary = execSummaryInstance.createInstance()
 
-            instances.push(execSummaryInstance.createInstance())
+            instances.push(newExecSummary)
 
             let currentNode
+
+            newPage.appendChild(newExecSummary)
+            
 
             for(const page in newPages){
               if(newPages[page].name == "Executive Summary"){
                 for(const instance in instances){
                   if(instances[instance].name == "pages/exec_summary/hero"){
-                    instances[instance].x = newPages[page].node.x
+                    // instances[instance].x = newPages[page].node.x
                     currentNode = instances[instance]
                     console.log("currentNode: ", currentNode);
                     
@@ -408,94 +412,94 @@ figma.ui.onmessage = msg => {
     // Iterate through the data array ->
       // All newly crated cards         -> 
         //  Field inputs                  -> 
-    for(let dbEntry in dataArray ){
-      for(const child of allCards[dbEntry].children){
+    // for(let dbEntry in dataArray ){
+    //   for(const child of allCards[dbEntry].children){
         
-        if(child.name == "importance-bar"){
-          for(let bar in child.children){
-            if(dataArray[dbEntry]["Insight type"] == "Positive"){
-              // console.log("Positive");
-              const fills = clone(child.children[bar].fills)
-              fills[0].color.r = 79/255
-              fills[0].color.g = 201/255
-              fills[0].color.b = 126/255
-              child.children[bar].fills = fills
-              // console.log(child.children[bar].fills);
-            }
+    //     if(child.name == "importance-bar"){
+    //       for(let bar in child.children){
+    //         if(dataArray[dbEntry]["Insight type"] == "Positive"){
+    //           // console.log("Positive");
+    //           const fills = clone(child.children[bar].fills)
+    //           fills[0].color.r = 79/255
+    //           fills[0].color.g = 201/255
+    //           fills[0].color.b = 126/255
+    //           child.children[bar].fills = fills
+    //           // console.log(child.children[bar].fills);
+    //         }
 
-            if(dataArray[dbEntry]["Insight type"] == "Neutral"){
-              // console.log("Positive");
-              const fills = clone(child.children[bar].fills)
-              fills[0].color.r = 196/255
-              fills[0].color.g = 196/255
-              fills[0].color.b = 196/255
-              child.children[bar].fills = fills
-              // console.log(child.children[bar].fills);
+    //         if(dataArray[dbEntry]["Insight type"] == "Neutral"){
+    //           // console.log("Positive");
+    //           const fills = clone(child.children[bar].fills)
+    //           fills[0].color.r = 196/255
+    //           fills[0].color.g = 196/255
+    //           fills[0].color.b = 196/255
+    //           child.children[bar].fills = fills
+    //           // console.log(child.children[bar].fills);
               
-            }
+    //         }
             
-            if(dataArray[dbEntry]["Insight type"] == "Caution"){
-              // console.log("Caution");
-              if(child.children[bar].name == "high" ){
-                var fills = clone(child.children[bar].fills)
-                fills[0].color.r = 254/255
-                fills[0].color.g = 236/255
-                fills[0].color.b = 198/255
-                child.children[bar].fills = fills
-              }
-              if(child.children[bar].name == "mid" ||  child.children[bar].name == "low"){
-                var fills = clone(child.children[bar].fills)
-                fills[0].color.r = 253/255
-                fills[0].color.g = 190/255
-                fills[0].color.b = 65/255
-                child.children[bar].fills = fills
-              }
-            }
+    //         if(dataArray[dbEntry]["Insight type"] == "Caution"){
+    //           // console.log("Caution");
+    //           if(child.children[bar].name == "high" ){
+    //             var fills = clone(child.children[bar].fills)
+    //             fills[0].color.r = 254/255
+    //             fills[0].color.g = 236/255
+    //             fills[0].color.b = 198/255
+    //             child.children[bar].fills = fills
+    //           }
+    //           if(child.children[bar].name == "mid" ||  child.children[bar].name == "low"){
+    //             var fills = clone(child.children[bar].fills)
+    //             fills[0].color.r = 253/255
+    //             fills[0].color.g = 190/255
+    //             fills[0].color.b = 65/255
+    //             child.children[bar].fills = fills
+    //           }
+    //         }
 
-            if(dataArray[dbEntry]["Insight type"] == "Concerning"){
-              // console.log("Caution");
-              if(child.children[bar].name == "high" || child.children[bar].name == "mid" ){
-                var fills = clone(child.children[bar].fills)
-                fills[0].color.r = 247/255
-                fills[0].color.g = 214/255
-                fills[0].color.b = 218/255
-                child.children[bar].fills = fills
-              }
-              if(  child.children[bar].name == "low"){
-                var fills = clone(child.children[bar].fills)
-                fills[0].color.r = 247/255
-                fills[0].color.g = 137/255
-                fills[0].color.b = 151/255
-                child.children[bar].fills = fills
-              }
-            }
+    //         if(dataArray[dbEntry]["Insight type"] == "Concerning"){
+    //           // console.log("Caution");
+    //           if(child.children[bar].name == "high" || child.children[bar].name == "mid" ){
+    //             var fills = clone(child.children[bar].fills)
+    //             fills[0].color.r = 247/255
+    //             fills[0].color.g = 214/255
+    //             fills[0].color.b = 218/255
+    //             child.children[bar].fills = fills
+    //           }
+    //           if(  child.children[bar].name == "low"){
+    //             var fills = clone(child.children[bar].fills)
+    //             fills[0].color.r = 247/255
+    //             fills[0].color.g = 137/255
+    //             fills[0].color.b = 151/255
+    //             child.children[bar].fills = fills
+    //           }
+    //         }
             
-            // fills[0].color.r = 0.5
-            // child.children[bar].fills = fills
+    //         // fills[0].color.r = 0.5
+    //         // child.children[bar].fills = fills
           
-            }
-          }
-        for(let item in msg.data.inputFieldValues){
-          if(child.name == msg.data.inputFieldValues[item].name){
-            for(let element in dataArray[dbEntry]){
-              if(msg.data.inputFieldValues[item].value == element){;
-                try{
-                  figma.loadFontAsync(child.fontName).then( function(){
-                    if(typeof dataArray[dbEntry][element] == "object"){
-                      child.characters = dataArray[dbEntry][element][0]
-                    } else{
-                      child.characters = dataArray[dbEntry][element]
-                    }
-                  })
-                }catch(error){
-                  console.log(error)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    //         }
+    //       }
+    //     for(let item in msg.data.inputFieldValues){
+    //       if(child.name == msg.data.inputFieldValues[item].name){
+    //         for(let element in dataArray[dbEntry]){
+    //           if(msg.data.inputFieldValues[item].value == element){;
+    //             try{
+    //               figma.loadFontAsync(child.fontName).then( function(){
+    //                 if(typeof dataArray[dbEntry][element] == "object"){
+    //                   child.characters = dataArray[dbEntry][element][0]
+    //                 } else{
+    //                   child.characters = dataArray[dbEntry][element]
+    //                 }
+    //               })
+    //             }catch(error){
+    //               console.log(error)
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
   }
 

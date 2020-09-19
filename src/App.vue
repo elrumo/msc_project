@@ -1,153 +1,38 @@
 <template>
   <div class="main-view">
-    
-    <div class="nav-bar panel-btns"></div>
-    
 
+    <!-- Loading animation -->
+    <spinner/>
+    <feedback-toast/>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="nav-bar panel-btns"></div>
 
     <coral-wizardview>
       
       <!-- TODO: #3 Create components instead of writing everything in here as pure html -->
       <!-- Steps -->
-      <coral-steplist coral-wizardview-steplist="" class="steps" interaction="on">
-        <coral-step>Step 1</coral-step>
-        <coral-step>Step 2</coral-step>
-        <coral-step>Step 3</coral-step>
-        <coral-step>Step 4</coral-step>
-        <coral-step>Step 5</coral-step>
-        <coral-step>Step 6</coral-step>
-        <coral-step>Step 7</coral-step>
-        <coral-step>Step 8</coral-step>
-      </coral-steplist>
+      <step-list/>
 
       <!-- Content views -->
       <coral-panelstack coral-wizardview-panelstack="" class="">
 
         <!-- Content view 1 -->
-        <coral-panel>
-          <h1 class="coral-Heading--XS p-t-10 p-b-15">Airtable to Figma</h1>
-
-          <!-- API Key -->
-          <div class="p-b-10">
-            <label id="label-API-key" class="coral-FieldLabel f-s-14">API Key</label>
-            <input
-              autofocus
-              type="text"
-              v-model="apiKey"
-              class="coral-Form-field _coral-Textfield"
-              ref="apiKeyInput"
-              name="baseURLInput"
-              placeholder="API Key from Airbase"
-            >
-          </div>
-
-          <!-- Base Key -->
-          <div>
-            <label id="label-base-key" class="coral-FieldLabel f-s-14">Base Key</label>
-            <input
-              type="text"
-              v-model="baseKey"
-              class="coral-Form-field _coral-Textfield"
-              ref="baseURLInput"
-              name="baseURLInput"
-              placeholder="Base Key from Airbase"
-            >
-          </div>
-
-          <!-- Instructions  -->
-          <ul class="coral-List--minimal p-t-5 m-b-0 f-w-200">
-            <li class="coral-List-item">
-              <h3 class="coral-Heading--XXXS m-b-5">
-                How can I get my API Key? 
-              </h3>
-              <p class="coral-Body--XS">
-                Visit <a href="https://support.airtable.com/hc/en-us/articles/219046777-How-do-I-get-my-API-key-" target="_blank" class="coral-Link"> this page </a> to see how.
-              </p>
-            </li>
-            <li class="coral-List-item">
-              <h3 class="coral-Heading--XXXS m-b-5 m-t-5">
-                How can I get the base Key?
-              </h3>
-              <p class="coral-Body--XS">
-                Visit <a href="https://airtable.com/api" target="_blank" class="coral-Link"> this page </a> to get it.
-              </p>
-            </li>
-          </ul>
-        </coral-panel>
+        <panel-api/>
         
         <!-- Content view 2 -->
-        <coral-panel>
-          <h1 class="coral-Heading--XS p-t-10 p-b-15">Select table</h1>
-
-          <label id="label" class="coral-FieldLabel f-s-14"> Table Name </label>
-          <input
-            type="text"
-            v-model="tableName"
-            class="coral-Form-field _coral-Textfield"
-            ref="tableNameInput"
-            name="tableNameInput"
-            placeholder="Name of table"
-          >
-          
-          <!-- Instructions  -->
-          <div class="p-t-40">
-            <coral-card variant="quiet">
-              <coral-card-asset class="opacity-80">
-                <img alt="" :src="images.tables">
-              </coral-card-asset>
-              <coral-card-content class="opacity-80" style="transform: translateY(-5px)">
-                <h3 class="coral-body--S f-s-16 m-0">Type the name of a table from your AirTable database as seen on the example image.</h3>
-              </coral-card-content>
-            </coral-card>
-          </div>
-        </coral-panel>
+        <select-table :images="images"/>
 
         <!-- Content view 3 -->
         <!-- Type of card selection -->
-        <coral-panel class="p-b-10">
-          <h1 class="coral-Heading--XS p-t-10 p-b-15">Report components</h1>
-
-          <p class="coral-Body--XS p-b-5">Select the components to use on this page.</p>
-
-          <div>
-            <div v-for="card in cardsToUse" :key="card.card">
-              <form class="coral-Form coral-Form--vertical">
-                <coral-select
-                  :id="card.cards"
-                  :labelledby="card.cards"
-                  ref="cardsToUse"
-                  placeholder="Choose a component"
-                >
-                  <coral-select-item
-                    v-for="cardType in cardTypes"
-                    :key="cardType.name"
-                    :value="cardType.value"
-                  >
-                    {{ cardType.name }}
-                  </coral-select-item>
-                  <coral-select-item value=""><i style="color: #959595;">Choose a component</i></coral-select-item>
-                </coral-select>
-
-              </form>
-            </div> 
-          </div>
-          
-          <div class="p-t-20" >
-            <button
-                is="coral-button"
-                @click="addNewCard"
-                class="w-full"
-              >
-                Add another component
-            </button>
-          </div>
-        </coral-panel>
+       <component-selection/>
 
         <!-- Content view 4 -->
         <!-- Connect cad layer names with AirTable data -->
         <coral-panel>
             <div v-for="component in cardsToUse" :key="component.card+'_component'" class="p-b-20">
-              <p class="f-w-700 f-s-16 m-b-5 m-t-0">{{ component.name }}</p>
+              <h1 class="coral-Heading--XS p-t-10 p-b-15">{{ component.name }}</h1>
+
               <div v-for="layer in textLayerNames[component.value]" :key="layer">
                 <div v-if="layer == 'title-default'" class="p-t-10 p-b-15">
                 </div>  
@@ -182,7 +67,7 @@
        
         <!-- Content view 5 -->
         <coral-panel>
-          <p class="coral-Body--XS p-b-5">The report has been created.</p>
+          <p class="coral-Body--XS m-t-50">The report has been created. You can now close the plugin.</p>
           
         </coral-panel>
 
@@ -236,16 +121,20 @@
       
       <!-- Right Button -->
       <coral-panelstack coral-wizardview-panelstack="" class="float-right panel-btns">
-        <!-- 1 -->
+        <!-- API screen -->
         <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="primary" coral-wizardview-next=""> 
+          <button is="coral-button"  variant="primary" coral-wizardview-next=""> 
             Next 
           </button>
         </coral-panel>
 
-        <!-- 2 -->
+        <!-- Select Table and table view -->
         <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="primary" @click="getItems" coral-wizardview-next="" >
+          <!-- <button is="coral-button" variant="primary" @click="getItems" coral-wizardview-next="" > -->
+          <button v-if="selectedView != '' & tableName != ''" is="coral-button" variant="primary" @click="fetchAirTable" coral-wizardview-next="" >
+            Next
+          </button>
+          <button v-else is="coral-button" variant="primary" disabled coral-wizardview-next="" >
             Next
           </button>
         </coral-panel>
@@ -253,7 +142,10 @@
         <!-- 3 -->
         <!-- Type of card selection -->
         <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="primary" @click="fetchComponentCards" coral-wizardview-next="" >
+          <button v-if="canProceedReportNext" is="coral-button" variant="primary" @click="fetchComponentCards" coral-wizardview-next="" >
+            Next
+          </button>
+          <button v-else is="coral-button" variant="primary" disabled coral-wizardview-next="" >
             Next
           </button>
         </coral-panel>
@@ -289,11 +181,30 @@
 </template>
 
 <script>
-import Vuex from 'vuex'
+import { mapActions, mapState, mapGetters, mapMutations } from 'vuex'
+import { mapFields } from 'vuex-map-fields';
 import * as Airtable from 'airtable'
+
+import StepList from './components/StepList.vue'
+import PanelApi from './components/panels/PanelApi.vue'
+import SelectTable from './components/panels/SelectTable.vue'
+import ComponentSelection from './components/panels/ComponentSelection.vue'
+
+import Spinner from './components/Spinner.vue'
+import FeedbackToast from './components/FeedbackToast.vue'
+
 
 export default {
   name: "App",
+  components: {
+    StepList,
+    PanelApi,
+    SelectTable,
+    ComponentSelection,
+    Spinner,
+    FeedbackToast
+  },
+  
   data() {
     return {
       count: 2,
@@ -304,9 +215,9 @@ export default {
         tables: require("./assets/images/airtable_tables.jpg")
       },
 
-      tableName: "Insights",
-      baseKey: "appTSdEpXSi8tcX0J",
-      apiKey: "keyExKGas9NCSngJL",
+      // tableName: "Insights",
+      // baseKey: "appTSdEpXSi8tcX0J",
+      // apiKey: "keyExKGas9NCSngJL",
 
       aTData: {},
       topicsTable:[],
@@ -343,7 +254,54 @@ export default {
       },
     };
   },
+
+  computed:{
+      ...mapState(['credentials', 'selectedView', 'tableName']),
+      ...mapGetters(['canProceedReport']),
+
+      canProceedReportNext(){
+        return this.canProceedReport
+      }
+  },
+
   methods: {
+    ...mapActions(['setIsWaiting', 'showToast']),
+
+    async fetchAirTable(){
+      const parentComp = this
+      const apiKey = parentComp.credentials.apiKey
+      const baseKey = parentComp.credentials.baseKey
+      const selectedView = parentComp.selectedView
+      const tableName = parentComp.tableName
+      
+      // Shows the loading spinner
+      parentComp.setIsWaiting(true)
+
+      // Sets connection settings to desired db
+      var base = new Airtable({apiKey: apiKey}).base(baseKey);
+      
+      // Async function to get the data from AirTable
+      await base(tableName).select({
+        // Gets ALL records
+        // maxRecords: 3,
+        view: "Grid view"
+      }).all().then( records =>{
+        // console.log("records: ", records);
+        // Hides the loading spinner
+        parentComp.setIsWaiting(false)
+        // Show success toast
+        let toast = {
+          msg: "Data fetched",
+          type: "success"
+        }
+        parentComp.showToast(toast)
+      })
+      
+    },
+
+
+
+
     findLayers: function() {
       const db = this.db
       let parent = this
@@ -369,13 +327,6 @@ export default {
       parent.postMessage({ pluginMessage: { type: "fetchComponentCards", cardsToUse} }, "*" );
     },
 
-    addNewCard(){
-      let parent = this
-      parent.cardsToUse.push({
-       card: "Card-" + (parent.cardsToUse.length + 1),
-       value: ""
-      })
-    },
     
     closePlugin: function() {
       parent.postMessage({ pluginMessage: { type: "closePlugin"} }, "*" );
@@ -490,29 +441,6 @@ export default {
       parent.postMessage({ pluginMessage: { type: "updateFigmaLayers", data}}, "*");
     },
 
-    writeToFigmaOld(){
-      //   let parentComp = this
-
-      //   // Gets data from input and saves it to Vue data
-      //   for(const ref in parentComp.$refs){
-      //     for(const layer in parentComp.textLayerNames){
-      //       var figmaLayer = parentComp.textLayerNames[layer]
-      //       if(figmaLayer == ref){
-      //         var inputValue = parentComp.$refs[figmaLayer][0].value
-      //         parentComp.inputFieldValues[figmaLayer] = {"name": figmaLayer, "value": inputValue}
-      //       }
-      //     }
-      //   }
-        
-      //   let inputFieldValues = parentComp.inputFieldValues
-      //   let aTData = parentComp.aTData
-
-      //   let data = {"inputFieldValues": inputFieldValues, "aTData": aTData }
-
-      //   parent.postMessage({ pluginMessage: { type: "test", data}}, "*");
-      //     // { pluginMessage: { type: "updateFigmaLayers", data}}, "*");
-    },
-
     saveInputData(){
       let parent = this
       // Get data input from input forms.
@@ -528,24 +456,13 @@ export default {
 
   mounted(){
     let parent = this;
-
-    // document.getElementById("myBtn").addEventListener("click", displayDate);
-
-    // Focus on form on crated
-    // this.$refs.apiKeyInput.focus()
     
     // Listen to events from code.ts
     onmessage = (event) => {
       let parentComp = this;
       let msg = event.data.pluginMessage
         if(msg.postMessage == "layerNames"){
-          // for(let layer in msg.componentsInUse.layers){
-            // console.log("layer: ", layer); 
           parentComp.textLayerNames = msg.componentsInUse.layers
-          
-          // for(const layer in parentComp.textLayerNames){
-          //   console.log("layer: ", layer)
-          // }
         }
     }
 

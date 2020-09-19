@@ -7,7 +7,7 @@
 
   .main-view{
     overflow: scroll;
-    height: 83%;
+    height: calc(100% - 75px);
     padding: 0px 45px 0px 45px;
   }
 
@@ -16,6 +16,17 @@
     transform: translateX(-50%);
     left: 50%;
     position: relative;
+  }
+
+  .loading-wrapper{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100vh;
+    width: 100vw;
+    background-color: #0000003b;
+    z-index: 999;
+    backdrop-filter: blur(4px);
   }
 
   .float-left{

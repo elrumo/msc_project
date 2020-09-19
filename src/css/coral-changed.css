@@ -33,3 +33,7 @@
 coral-card-asset{
     min-height: 10px !important;
 }
+
+.coral--large .coral-Well{
+    min-width: 200px;
+}
