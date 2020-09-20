@@ -82,13 +82,13 @@ for(let comp in libraryComponents){
         var cleanLayerName = layerName.replace("🔵", "")
         
         libraryComponents[comp].layers[cleanLayerName] = {
-          id: textNodes[actionable].id,
+          id: textNodes[actionable].id, 
           name: textNodes[actionable].name,
           characters: textNodes[actionable].characters
         }
       }
     }
-    
+
     console.log(libraryComponents[comp]);
     
     // libraryComponents[node.name] = component
