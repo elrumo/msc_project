@@ -3,7 +3,7 @@
 
 // This file holds the main code for the plugins. It has access to the *document*.
 // You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser enviroment (see documentation).
+// full browser environment (see documentation).
 
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
@@ -13,7 +13,9 @@ figma.ui.resize(400, 580)
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
 // posted message.
-let libraryComponents = {
+
+// It is needed to hard-code all Library Components to be used with their key, no way to get them using the Figma Plugin API
+var libraryComponents = {
   board_header: {
     key: "69f911c3a4a9b80c8181e6b1c743a3e042b8c4f8",
     name: "Board Header",
@@ -64,38 +66,35 @@ let libraryComponents = {
     layers: {}
   }
 }
+function getLibraryComponents(){
+  for(let comp in libraryComponents){
+    let compKey = libraryComponents[comp].key
 
+    figma.importComponentByKeyAsync(compKey).then((node)=>{
+      
+      const textNodes = node.findAll(n => n.type == "TEXT")
+      
+      // Look for any text layer that has the character "🔵", remove "🔵" and add it to the comp list to send to the UI.
+      for(let actionable in textNodes){
+        if(textNodes[actionable].name.includes("🔵")){
 
-figma.ui.postMessage({code: "setCompRef", payload: libraryComponents})
+          var layerName  = textNodes[actionable].name
+          var cleanLayerName = layerName.replace("🔵", "")
 
-for(let comp in libraryComponents){
-  let compKey = libraryComponents[comp].key
-  
-  figma.importComponentByKeyAsync(compKey).then((node)=>{
-    
-    const textNodes = node.findAll(n => n.type == "TEXT")
-    
-    // Look for any text layer that has the cnaracter "🔵"
-    for(let actionable in textNodes){
-      if(textNodes[actionable].name.includes("🔵")){
-        var layerName  = textNodes[actionable].name
-        var cleanLayerName = layerName.replace("🔵", "")
-        
-        libraryComponents[comp].layers[cleanLayerName] = {
-          id: textNodes[actionable].id, 
-          name: textNodes[actionable].name,
-          characters: textNodes[actionable].characters
+          libraryComponents[comp].layers[cleanLayerName] = {
+            id: textNodes[actionable].id, 
+            name: textNodes[actionable].name,
+            characters: textNodes[actionable].characters
+          }
         }
       }
-    }
 
-    console.log(libraryComponents[comp]);
-    
-    // libraryComponents[node.name] = component
+      // Wait for the async import of the component and send message with components to UI
+      figma.ui.postMessage({code: "setCompRef", payload: libraryComponents}) 
+    });
+  }
 
-  });
-}
-
+} getLibraryComponents()
 
 
 

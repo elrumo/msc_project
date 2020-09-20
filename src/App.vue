@@ -25,45 +25,11 @@
 
         <!-- Content view 3 -->
         <!-- Type of card selection -->
-       <component-selection/>
+        <component-selection/>
 
         <!-- Content view 4 -->
-        <!-- Connect cad layer names with AirTable data -->
-        <coral-panel>
-            <div v-for="component in cardsToUse" :key="component.card+'_component'" class="p-b-20">
-              <h1 class="coral-Heading--XS p-t-10 p-b-15">{{ component.name }}</h1>
-
-              <div v-for="layer in textLayerNames[component.value]" :key="layer">
-                <div v-if="layer == 'title-default'" class="p-t-10 p-b-15">
-                </div>  
-                <form v-else-if="layer !== 'description-text' " class="coral-Form coral-Form--vertical">
-                  <label :aria-label="layer" class="coral-Form-fieldlabel">{{ layer }}</label>    
-                  <coral-select :labelledby="layer" :ref="layer" placeholder="Choose an item">
-                    <coral-select-item
-                      v-for="aTfield in aTfieldsArray"
-                      :key="aTfield"
-                      :value="aTfield"
-                    >
-                      {{ aTfield }}
-                    </coral-select-item>
-                    <coral-select-item value=""><i style="color: #959595;">Choose an item</i></coral-select-item>
-                  </coral-select>
-                </form>
-                
-                <div v-else-if="layer == 'description-text'" class="p-t-10">
-                  <textarea
-                    is="coral-textarea"
-                    placeholder="Page description"
-                    ref="pageDescriptionInput"
-                    class="r-4"
-                    aria-label="text input" 
-                  >
-                  </textarea>
-                </div>
-
-              </div>
-            </div>
-        </coral-panel>
+        <!-- Connect card layer names with AirTable data -->
+        <field-selection/>
        
         <!-- Content view 5 -->
         <coral-panel>
@@ -142,7 +108,7 @@
         <!-- 3 -->
         <!-- Report components -->
         <coral-panel class="u-coral-margin">
-          <button v-if="canProceedReportNext" is="coral-button" variant="primary" @click="getLibraryComponents" coral-wizardview-next="" >
+          <button v-if="canProceedReportNext" is="coral-button" variant="primary" @click="" coral-wizardview-next="" >
             Next
           </button>
           <button v-else is="coral-button" variant="primary" disabled coral-wizardview-next="" >
@@ -185,10 +151,12 @@ import { mapActions, mapState, mapGetters, mapMutations } from 'vuex'
 import { mapFields } from 'vuex-map-fields';
 import * as Airtable from 'airtable'
 
+// Coral wizard views
 import StepList from './components/StepList.vue'
 import PanelApi from './components/panels/PanelApi.vue'
 import SelectTable from './components/panels/SelectTable.vue'
 import ComponentSelection from './components/panels/ComponentSelection.vue'
+import FieldSelection from './components/panels/FieldSelection.vue'
 
 import Spinner from './components/Spinner.vue'
 import FeedbackToast from './components/FeedbackToast.vue'
@@ -202,7 +170,8 @@ export default {
     SelectTable,
     ComponentSelection,
     Spinner,
-    FeedbackToast
+    FeedbackToast,
+    FieldSelection,
   },
   
   data() {
@@ -266,7 +235,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(['setIsWaiting', 'showToast']),
+    ...mapActions(['setIsWaiting', 'showToast', 'setAllTables']),
 
     async fetchAirTable(){
       const parentComp = this
@@ -284,10 +253,10 @@ export default {
       // Async function to get the data from AirTable
       await base(tableName).select({
         // Gets ALL records
-        // maxRecords: 3,
         view: "Grid view"
       }).all().then( records =>{
-        // console.log("records: ", records);
+        parentComp.setAllTables(records)
+        console.log("records: ", records);
         // Hides the loading spinner
         parentComp.setIsWaiting(false)
         // Show success toast
@@ -300,10 +269,10 @@ export default {
       
     },
 
-    getLibraryComponents(){
-      
-      parent.postMessage({ pluginMessage: { type: "fetchComponentCards", cardsToUse} }, "*" );
-    },
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     findLayers: function() {
@@ -316,7 +285,6 @@ export default {
       );
     },
     
-    // TODO: #1 Add visual loader when data is being fetched. 
     fetchComponentCards(){
       // Get input data and save to Vue.
       let parentComp = this
@@ -465,19 +433,10 @@ export default {
       // Get a list of all components with their UID reference
 
       if (event.data.pluginMessage.code == "setCompRef") {
-        this.$store.dispatch("setComponentsRef", event.data.pluginMessage.payload)
+        this.$store.dispatch("setComponents", event.data.pluginMessage.payload)
       }
 
     }
-
-    // Listen to events from code.ts
-    // onmessage = (event) => {
-    //   let parentComp = this;
-    //   let msg = event.data.pluginMessage
-    //   if(msg.postMessage == "layerNames"){
-    //     parentComp.textLayerNames = msg.componentsInUse.layers
-    //   }
-    // }
 
   },
 

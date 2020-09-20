@@ -30,13 +30,13 @@ export default new Vuex.Store({
       "Kanban"
     ],
     selectedView:"Grid",
+    allTables:[],
 
     isWaiting: false,
 
     toastMsg: "",
 
-    componentsToUse:[ { listId: 0, title: "" } ],
-    libraryComponentsRef:{},
+    componentsToUse:[ { listId: 0, title: "", name:"" } ],
     libraryComponents:{}
 
   },
@@ -57,16 +57,14 @@ export default new Vuex.Store({
     },
 
     SET_COMPONENT_VALUE: (state, payload) => {
-      console.log("listId: ", payload.listId);
       let toUseList = state.componentsToUse
       for(let item in toUseList){
         if(toUseList[item].listId == payload.listId){
           toUseList[item].title = payload.component.title
-          // console.log(payload);
+          toUseList[item].name = payload.component.name
+          console.log(toUseList[item].name);
         }
       }
-      // state.componentsToUse[payload.order].title = payload.comp.title
-      // state.componentsToUse[payload.order].key = payload.comp.key
     },
 
     // Adds new dropdown for selection
@@ -79,26 +77,32 @@ export default new Vuex.Store({
     },
 
     UPDATE_LIST:(state, payload) =>{
-      // console.log(payload.list);
+      console.log(payload);
       state.componentsToUse = payload.list
     },
     
     // Get a list of all components with their UID reference
-    SET_COMPONENTS_REF:(state, componentsRef) =>{
-      console.log(componentsRef);
-      state.libraryComponentsRef = componentsRef
+    SET_COMPONENTS:(state, components) =>{
+      state.libraryComponents = components
     },
 
     SET_COMPONENT_LIBRARY:(state, components) =>{
       state.libraryComponents = components
+    },
+
+    // Populates allTables with the name of all the tables in the database
+    SET_ALL_TABLES:(state, allTables) =>{
+      console.log(allTables);
+      state.allTables = allTables
     }
+
+
   },
   
 
   actions: {
     selectViewAction: (context, payload) =>{
       context.commit("SELECT_VIEW", payload);
-      console.log(payload);
     },
 
     setIsWaiting: (context, bool) =>{
@@ -108,14 +112,12 @@ export default new Vuex.Store({
     showToast: (context, toast) => {
       context.commit("SET_TOAST_MSG", toast.msg);
       // Set what type of toast to show
-      // console.log(document.getElementById("successToast"));
-      console.log(toast);
       switch (toast.type) {
         case "success":
-          document.getElementById("successToast").show();
+          // document.getElementById("successToast").show();
           break;
         case "error":
-          document.getElementById("errorToast").show();
+          // document.getElementById("errorToast").show();
           break;
         default:
           console.log("Neee");
@@ -124,21 +126,14 @@ export default new Vuex.Store({
     },
 
     setCompToValue: (context, payload) => {
-      // console.log(payload);
-      let libraryComponentsRef = context.state.libraryComponentsRef
+      let libraryComponents = context.state.libraryComponents
       var component = {}
 
-      for(let comp in libraryComponentsRef){
-        if (libraryComponentsRef[comp].title == payload.compTitle) {
-          component = libraryComponentsRef[comp]
-          break
-        }
-      }
-      console.log(component);
-
+      // console.log(libraryComponents[payload.compTitle]);
+      component = libraryComponents[payload.compTitle]
+      
       let listId = payload.listId
       context.commit("SET_COMPONENT_VALUE", {component, listId})
-      // console.log(context.state.componentsToUse);
     },
 
     addCompToUse: (context) => {
@@ -151,12 +146,20 @@ export default new Vuex.Store({
     },
 
     // Get a list of all components with their UID reference
-    setComponentsRef(context, componentsRef){
-      context.commit("SET_COMPONENTS_REF", componentsRef)
+    setComponents(context, components){
+      context.commit("SET_COMPONENTS", components)
     },
 
     setComponentLibrary:(context, components)=>{
       context.commit("SET_COMPONENT_LIBRARY", components)
+    },
+
+    setAllTables:(context, allTables)=>{
+      let tablesArr = []
+      for(let table in allTables){
+        tablesArr.push(allTables[table].fields.Name)
+      }
+      context.commit("SET_ALL_TABLES", tablesArr)
     }
 
   },  
@@ -167,6 +170,10 @@ export default new Vuex.Store({
     
     getState(state){
       return state
+    },
+
+    getCompListToUse(state){
+      console.log(state.componentsToUse);
     },
 
     // Checks if there are any empty report component dropdowns
@@ -185,14 +192,13 @@ export default new Vuex.Store({
       return canProceed
     },
     
-
     usableComponents: state =>{
       let compObj = {}
       
       // Checks if the component should be editable by the user, ie: the header is present in every report and should not be shown to the user 
-      for(let comp in state.libraryComponentsRef){
-        if(state.libraryComponentsRef[comp].usable){
-          compObj[comp] = state.libraryComponentsRef[comp]
+      for(let comp in state.libraryComponents){
+        if(state.libraryComponents[comp].usable){
+          compObj[comp] = state.libraryComponents[comp]
           console.log(comp);
         }
       }

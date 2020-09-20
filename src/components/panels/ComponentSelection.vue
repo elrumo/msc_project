@@ -30,7 +30,7 @@
               @change="setCompToUse"
             >
               <coral-select-item
-                v-for="comp in libraryComponentsRef"
+                v-for="comp in libraryComponents"
                 :key="comp.name"
                 :value="comp.title"
               >
@@ -71,7 +71,7 @@ export default {
     },
 
     computed:{
-      ...mapState(['credentials', 'libraryComponentsRef', 'componentsToUse']),
+      ...mapState(['credentials', 'libraryComponents', 'componentsToUse']),
       ...mapGetters(['usableComponents', 'componentsToUseGetter']),
       ...mapActions(['updateList']),
 
@@ -97,7 +97,8 @@ export default {
       setCompToUse(e){
         let compTitle = e.target.value
         let listId = e.target.id.replace("dropDown_","")
-        console.log(listId);
+        // console.log(this.libraryComponents[compTitle]);
+        // console.log(listId);
         this.setCompToValue({compTitle, listId})
       },
 
@@ -105,7 +106,8 @@ export default {
         let parent = this
         parent.cardsToUse.push({
           card: "Card-" + (parent.cardsToUse.length + 1),
-          value: ""
+          value: "",
+          name: ""
         })
       },
 
