@@ -1,7 +1,7 @@
 <template>
     <div>
-    <coral-toast id="errorToast" autodismiss="100" variant="error">{{ toastMsg }}</coral-toast>
-    <coral-toast id="successToast" autodismiss="100" variant="success">{{ toastMsg }}</coral-toast>
+    <coral-toast id="errorToast" autodismiss="5000" variant="error">{{ toastMsg }}</coral-toast>
+    <coral-toast id="successToast" autodismiss="5000" variant="success">{{ toastMsg }}</coral-toast>
     </div>
 </template>
 

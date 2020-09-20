@@ -140,9 +140,9 @@
         </coral-panel>
 
         <!-- 3 -->
-        <!-- Type of card selection -->
+        <!-- Report components -->
         <coral-panel class="u-coral-margin">
-          <button v-if="canProceedReportNext" is="coral-button" variant="primary" @click="fetchComponentCards" coral-wizardview-next="" >
+          <button v-if="canProceedReportNext" is="coral-button" variant="primary" @click="getLibraryComponents" coral-wizardview-next="" >
             Next
           </button>
           <button v-else is="coral-button" variant="primary" disabled coral-wizardview-next="" >
@@ -207,6 +207,7 @@ export default {
   
   data() {
     return {
+
       count: 2,
       db: [],
       recordsNum: 15,
@@ -299,7 +300,10 @@ export default {
       
     },
 
-
+    getLibraryComponents(){
+      
+      parent.postMessage({ pluginMessage: { type: "fetchComponentCards", cardsToUse} }, "*" );
+    },
 
 
     findLayers: function() {
@@ -327,7 +331,6 @@ export default {
       parent.postMessage({ pluginMessage: { type: "fetchComponentCards", cardsToUse} }, "*" );
     },
 
-    
     closePlugin: function() {
       parent.postMessage({ pluginMessage: { type: "closePlugin"} }, "*" );
     },
@@ -455,16 +458,26 @@ export default {
   },
 
   mounted(){
+
     let parent = this;
-    
-    // Listen to events from code.ts
+
     onmessage = (event) => {
-      let parentComp = this;
-      let msg = event.data.pluginMessage
-        if(msg.postMessage == "layerNames"){
-          parentComp.textLayerNames = msg.componentsInUse.layers
-        }
+      // Get a list of all components with their UID reference
+
+      if (event.data.pluginMessage.code == "setCompRef") {
+        this.$store.dispatch("setComponentsRef", event.data.pluginMessage.payload)
+      }
+
     }
+
+    // Listen to events from code.ts
+    // onmessage = (event) => {
+    //   let parentComp = this;
+    //   let msg = event.data.pluginMessage
+    //   if(msg.postMessage == "layerNames"){
+    //     parentComp.textLayerNames = msg.componentsInUse.layers
+    //   }
+    // }
 
   },
 

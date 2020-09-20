@@ -13,6 +13,99 @@ figma.ui.resize(400, 580)
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
 // posted message.
+let libraryComponents = {
+  board_header: {
+    key: "69f911c3a4a9b80c8181e6b1c743a3e042b8c4f8",
+    name: "Board Header",
+    title: "board_header",
+    usable: false,
+    layers: {}
+  },
+  hero: {
+    key: "ac80f5fc2ca5cd5c456808624a205c2291e53849",
+    name: "Page Hero",
+    title: "hero",
+    usable: true,
+    layers: {}
+  },
+  success_chart: {
+    key: "2964614bae83fc0acb205070fa6443b5ae7ed201",
+    name: "Success Chart",
+    title: "success_chart",
+    usable: true,
+    layers: {}
+  },
+  exec_summary: {
+    key: "a9abf7679808249ff0e15c9b51bc465ce1381f0c",
+    name: "Executive Summary",
+    title: "exec_summary",
+    usable: true,
+    layers: {}
+  },
+  insights: {
+    key: "16324faa210a930553c134d73595c7e8fcd3f87a",
+    name: "Insights",
+    title: "insights",
+    usable: true,
+    layers: {}
+  },
+  actions_warnings: {
+    key: "9cf3eaa033b37ac19d7b291ea5630df6e4088d0f",
+    name: "Actions & Warnings",
+    title: "actions_warnings",
+    usable: true,
+    layers: {}
+  },
+  image_callout: {
+    key: "56c9f6a3fbb36eba1b17230734df3c29017ce4f2",
+    name: "Image Callout",
+    title: "image_callout",
+    usable: true,
+    layers: {}
+  }
+}
+
+
+figma.ui.postMessage({code: "setCompRef", payload: libraryComponents})
+
+for(let comp in libraryComponents){
+  let compKey = libraryComponents[comp].key
+  
+  figma.importComponentByKeyAsync(compKey).then((node)=>{
+    
+    const textNodes = node.findAll(n => n.type == "TEXT")
+    
+    // Look for any text layer that has the cnaracter "🔵"
+    for(let actionable in textNodes){
+      if(textNodes[actionable].name.includes("🔵")){
+        var layerName  = textNodes[actionable].name
+        var cleanLayerName = layerName.replace("🔵", "")
+        
+        libraryComponents[comp].layers[cleanLayerName] = {
+          id: textNodes[actionable].id,
+          name: textNodes[actionable].name,
+          characters: textNodes[actionable].characters
+        }
+      }
+    }
+    
+    console.log(libraryComponents[comp]);
+    
+    // libraryComponents[node.name] = component
+
+  });
+}
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 let componentsInUse = { layers:{}, components:{} }
 let instances = []
 let newPages = []
@@ -22,6 +115,7 @@ let exec_page = {}
 
 let pageWidth = 1440
 let pageHeight = 3000
+
 
 figma.ui.onmessage = msg => {
 
@@ -135,7 +229,6 @@ figma.ui.onmessage = msg => {
     findComponents()
     // findLayers()
   }
-
 
   if (msg.type == "updateFigmaLayers"){
     // Create page report

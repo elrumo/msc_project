@@ -5,6 +5,25 @@
     color: black;
   }
 
+
+  .drag-grid{
+    display: grid;
+    grid-template-columns: 17px auto;
+    height: fit-content;
+  }
+
+  .select-group{
+    display: grid;
+    grid-template-rows: auto;
+    row-gap: 15px;
+  }
+
+  .drag-handle{
+    cursor: grab;
+    position: relative;
+    left: -5px;
+  }
+
   .main-view{
     overflow: scroll;
     height: calc(100% - 75px);
