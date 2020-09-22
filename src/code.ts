@@ -8,7 +8,7 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
 
-figma.ui.resize(400, 580)
+figma.ui.resize(420, 600)
 
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
@@ -79,7 +79,7 @@ function getLibraryComponents(){
         if(textNodes[actionable].name.includes("🔵")){
 
           var layerName  = textNodes[actionable].name
-          var cleanLayerName = layerName.replace("🔵", "")
+          var cleanLayerName = layerName
 
           libraryComponents[comp].layers[cleanLayerName] = {
             id: textNodes[actionable].id, 

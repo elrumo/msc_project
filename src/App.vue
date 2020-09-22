@@ -29,7 +29,7 @@
 
         <!-- Content view 4 -->
         <!-- Connect card layer names with AirTable data -->
-        <field-selection/>
+        <field-selection v-if="fieldSelection"/>
        
         <!-- Content view 5 -->
         <coral-panel>
@@ -108,7 +108,7 @@
         <!-- 3 -->
         <!-- Report components -->
         <coral-panel class="u-coral-margin">
-          <button v-if="canProceedReportNext" is="coral-button" variant="primary" @click="" coral-wizardview-next="" >
+          <button v-if="canProceed" is="coral-button" variant="primary" @click="fieldSelection = !fieldSelection" coral-wizardview-next="" >
             Next
           </button>
           <button v-else is="coral-button" variant="primary" disabled coral-wizardview-next="" >
@@ -176,6 +176,8 @@ export default {
   
   data() {
     return {
+      
+      fieldSelection: false,
 
       count: 2,
       db: [],
@@ -226,7 +228,7 @@ export default {
   },
 
   computed:{
-      ...mapState(['credentials', 'selectedView', 'tableName']),
+      ...mapState(['credentials', 'selectedView', 'tableName', 'canProceed']),
       ...mapGetters(['canProceedReport']),
 
       canProceedReportNext(){

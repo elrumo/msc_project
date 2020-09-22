@@ -73,12 +73,12 @@
   .nav-bar{
     z-index: 1;
     position: fixed;
-    background: white;
+    /* background: white; */
     bottom: 0;
     left: 0;
     width: 100vw;
     height: 75px;
-    box-shadow: 0px 7px 24px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 7px 24px 0px rgba(0, 0, 0, 0.5);
   }
 
   .opacity-10{

@@ -27,7 +27,7 @@
               :id="'dropDown_' + section.listId"
               placeholder="Choose a component"
               :order="section.listId"
-              @change="setCompToUse"
+              @change="setCompToUse($event, section.listId)"
             >
               <coral-select-item
                 v-for="comp in libraryComponents"
@@ -73,7 +73,6 @@ export default {
     computed:{
       ...mapState(['credentials', 'libraryComponents', 'componentsToUse']),
       ...mapGetters(['usableComponents', 'componentsToUseGetter']),
-      ...mapActions(['updateList']),
 
       compListToUse: {
         get() {
@@ -94,21 +93,10 @@ export default {
       ...mapMutations(['ADD_RECORD']),
       ...mapActions(['setCompToValue', 'addCompToUse']),
       
-      setCompToUse(e){
+      setCompToUse(e, listIdVal){
         let compTitle = e.target.value
-        let listId = e.target.id.replace("dropDown_","")
-        // console.log(this.libraryComponents[compTitle]);
-        // console.log(listId);
+        let listId = listIdVal
         this.setCompToValue({compTitle, listId})
-      },
-
-      addNewComponent(){
-        let parent = this
-        parent.cardsToUse.push({
-          card: "Card-" + (parent.cardsToUse.length + 1),
-          value: "",
-          name: ""
-        })
       },
 
       addNewComp(){

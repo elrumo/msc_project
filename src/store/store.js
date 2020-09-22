@@ -5,7 +5,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getField, updateField } from 'vuex-map-fields';
-// import records from './record-data.js';
 
 Vue.use(Vuex)
 
@@ -31,13 +30,16 @@ export default new Vuex.Store({
     ],
     selectedView:"Grid",
     allTables:[],
+    // baseData:{},
 
     isWaiting: false,
 
     toastMsg: "",
 
-    componentsToUse:[ { listId: 0, title: "", name:"" } ],
-    libraryComponents:{}
+    componentsToUse:[ ],
+    libraryComponents:{},
+
+    canProceed: false,
 
   },
 
@@ -57,14 +59,31 @@ export default new Vuex.Store({
     },
 
     SET_COMPONENT_VALUE: (state, payload) => {
-      let toUseList = state.componentsToUse
-      for(let item in toUseList){
-        if(toUseList[item].listId == payload.listId){
-          toUseList[item].title = payload.component.title
-          toUseList[item].name = payload.component.name
-          console.log(toUseList[item].name);
+      let componentsToUse = state.componentsToUse
+
+      for(let item in componentsToUse){
+        if(componentsToUse[item].listId == payload.listId){
+          componentsToUse[item].comp = payload.component
+          componentsToUse[item].title = payload.component.title
+          componentsToUse[item].name = payload.component.name
+          // componentsToUse[item].title = payload.component.title
+          // componentsToUse[item].name = payload.component.name
+          // componentsToUse[item].airTable = { table:"", data: {} }
+          // componentsToUse[item].layers = payload.component.layers 
         }
       }
+
+      for(let comp in componentsToUse){
+        console.log(state.canProceed);
+        console.log(componentsToUse[comp]);
+        if (componentsToUse[comp].title == "") {
+          state.canProceed = false
+          return
+        } else{
+          state.canProceed = true
+        }
+      }
+
     },
 
     // Adds new dropdown for selection
@@ -72,8 +91,10 @@ export default new Vuex.Store({
       let componentsToUse = state.componentsToUse
       let len = Object.keys(componentsToUse).length - 1
       len++
-      let newObj = {listId: len, title: ""}
+      let newObj = {listId: len, title: "", name: "", comp: {}, tableData:{}}
+      console.log(state.componentsToUse);
       state.componentsToUse.push(newObj)
+      console.log(state.componentsToUse);
     },
 
     UPDATE_LIST:(state, payload) =>{
@@ -94,8 +115,43 @@ export default new Vuex.Store({
     SET_ALL_TABLES:(state, allTables) =>{
       console.log(allTables);
       state.allTables = allTables
-    }
+    },
 
+    SET_TABLE_DATA(state, payload){
+      let tableData = payload.tableData
+      // let tableName = payload.tableName
+      let componentName = payload.componentName
+      let componentsToUse = state.componentsToUse
+      let libraryComponents = state.libraryComponents
+      
+      for(let comp in componentsToUse){
+        if(componentsToUse[comp].name == componentName){
+          componentsToUse[comp].tableData = tableData
+          console.log(componentsToUse[comp]);
+        }
+      }  
+
+    },
+    
+    SET_AIRTABLE_TO_FIGMA_LAYER(state, payload){
+      let componentsToUse = state.componentsToUse
+
+      let componentName = payload.componentName
+      // let airTableData = payload.tabl
+      let figmaLayer = payload.figmaLayer
+      
+      for(let comp in componentsToUse){
+        if (componentsToUse[comp].comp.name == payload.componentName) {
+          componentsToUse[comp].comp.name = payload.airTableData
+          console.log(componentsToUse[comp].comp)
+        }
+      }
+
+      // for(let comp in componentsToUse){
+      //   // componentsToUse[comp].layers[figmaLayer] = componentsToUse[comp].airTable.data.recordsData[]
+      //   componentsToUse[comp].layers[figmaLayer] = airTableData
+      // }
+    },
 
   },
   
@@ -127,11 +183,8 @@ export default new Vuex.Store({
 
     setCompToValue: (context, payload) => {
       let libraryComponents = context.state.libraryComponents
-      var component = {}
-
-      // console.log(libraryComponents[payload.compTitle]);
-      component = libraryComponents[payload.compTitle]
-      
+      var component = libraryComponents[payload.compTitle]
+      console.log("component: ", component);
       let listId = payload.listId
       context.commit("SET_COMPONENT_VALUE", {component, listId})
     },
@@ -160,6 +213,47 @@ export default new Vuex.Store({
         tablesArr.push(allTables[table].fields.Name)
       }
       context.commit("SET_ALL_TABLES", tablesArr)
+    },
+
+    setTableData:(context, payload)=>{
+      // let tableName = payload.tableName
+      let records = payload.records
+      let componentName = payload.compName
+
+      let tableData = { 
+          recordsData:{},
+          fields:[]
+        }
+
+      let highestNumOfFields  = 0
+      let numOfFieldsId = ""
+
+      console.log(payload);
+
+      for(let record in records){
+        // Saves all the record's field and data into an object
+        tableData.recordsData[records[record].id] = records[record].fields
+        
+        // Check for the record with the most fields and save its ID to a variable to get all the fields names
+        let numOfFields = Object.keys(records[record].fields).length
+        if (numOfFields > highestNumOfFields){
+          highestNumOfFields = numOfFields
+          numOfFieldsId = records[record].id
+        }  
+      }
+      
+      // // Iterate through the record with the most fields to get their field names and store them in an array
+      for(let fieldName in tableData.recordsData[numOfFieldsId]){
+        tableData.fields.push(fieldName)
+      }
+
+      // console.log(tableData);
+
+      context.commit("SET_TABLE_DATA", {tableData, componentName})
+    },
+
+    setAirTableToFigmaLayer(context, payload){
+      context.commit("SET_AIRTABLE_TO_FIGMA_LAYER", payload)
     }
 
   },  
@@ -172,16 +266,21 @@ export default new Vuex.Store({
       return state
     },
 
+    // tableDataArr(state){
+    //   return Object.keys(state.tableData)
+    // },
+
     getCompListToUse(state){
       console.log(state.componentsToUse);
     },
 
     // Checks if there are any empty report component dropdowns
     canProceedReport: state=>{
-      var componentsToUse = state.componentsToUse
-      var canProceed = false
+      let componentsToUse = state.componentsToUse
+      let canProceed = state.canProceed
 
       for(let comp in componentsToUse){
+        console.log(componentsToUse[comp]);
         if (componentsToUse[comp].title == "") {
           canProceed = false
           return
@@ -189,6 +288,7 @@ export default new Vuex.Store({
           canProceed = true
         }
       }
+
       return canProceed
     },
     
