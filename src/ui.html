@@ -5,5 +5,14 @@
 <div id="app"></div>
 
 <script>
-    document.getElementsByTagName("body")[0].classList.add("coral--dark", "coral--large");
+    let body = document.getElementsByTagName("body")[0]
+    body.classList.add("coral--large");
+
+    if(window.matchMedia('(prefers-color-scheme: dark)').matches){
+        body.classList.add("coral--dark");
+    } else{
+        console.log(body);
+        body.classList.add("coral--light");
+    }
+
 </script>
