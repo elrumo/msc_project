@@ -39,7 +39,13 @@ export default new Vuex.Store({
     componentsToUse:[ ],
     libraryComponents:{},
 
-    canProceed: false,
+    canProceed: {
+      panelApi: false,
+      selectTable: false,
+      componentSelection: false,
+      fieldSelection: false,
+      fieldSelection: false,
+    }
 
   },
 
@@ -74,13 +80,11 @@ export default new Vuex.Store({
       }
 
       for(let comp in componentsToUse){
-        console.log(state.canProceed);
-        console.log(componentsToUse[comp]);
         if (componentsToUse[comp].title == "") {
-          state.canProceed = false
+          state.canProceed.componentSelection = false
           return
         } else{
-          state.canProceed = true
+          state.canProceed.componentSelection = true
         }
       }
 
@@ -92,9 +96,8 @@ export default new Vuex.Store({
       let len = Object.keys(componentsToUse).length - 1
       len++
       let newObj = {listId: len, title: "", name: "", comp: {}, tableData:{}}
-      console.log(state.componentsToUse);
+      state.canProceed.componentSelection = false
       state.componentsToUse.push(newObj)
-      console.log(state.componentsToUse);
     },
 
     UPDATE_LIST:(state, payload) =>{
@@ -135,15 +138,19 @@ export default new Vuex.Store({
     
     SET_AIRTABLE_TO_FIGMA_LAYER(state, payload){
       let componentsToUse = state.componentsToUse
-
-      let componentName = payload.componentName
-      // let airTableData = payload.tabl
       let figmaLayer = payload.figmaLayer
+      let componentName = payload.componentName
+      console.log(payload);
+      // let airTableData = payload.tabl
       
       for(let comp in componentsToUse){
-        if (componentsToUse[comp].comp.name == payload.componentName) {
-          componentsToUse[comp].comp.name = payload.airTableData
-          console.log(componentsToUse[comp].comp)
+        if (componentsToUse[comp].comp.name == componentName) {
+          for(let layer in componentsToUse[comp].comp.layers){
+            if (componentsToUse[comp].comp.layers[layer].name == figmaLayer) {
+              componentsToUse[comp].comp.layers[layer].mappedToAirTable = payload.airTableData
+            }
+          }
+          // console.log(componentsToUse[comp].comp)
         }
       }
 
@@ -275,22 +282,22 @@ export default new Vuex.Store({
     },
 
     // Checks if there are any empty report component dropdowns
-    canProceedReport: state=>{
-      let componentsToUse = state.componentsToUse
-      let canProceed = state.canProceed
+    // canProceedReport: state=>{
+    //   let componentsToUse = state.componentsToUse
+    //   let canProceed = state.canProceed
 
-      for(let comp in componentsToUse){
-        console.log(componentsToUse[comp]);
-        if (componentsToUse[comp].title == "") {
-          canProceed = false
-          return
-        } else{
-          canProceed = true
-        }
-      }
+    //   for(let comp in componentsToUse){
+    //     console.log(componentsToUse[comp]);
+    //     if (componentsToUse[comp].title == "") {
+    //       canProceed = false
+    //       return
+    //     } else{
+    //       canProceed = true
+    //     }
+    //   }
 
-      return canProceed
-    },
+    //   return canProceed
+    // },
     
     usableComponents: state =>{
       let compObj = {}

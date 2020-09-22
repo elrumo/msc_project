@@ -84,7 +84,8 @@ function getLibraryComponents(){
           libraryComponents[comp].layers[cleanLayerName] = {
             id: textNodes[actionable].id, 
             name: textNodes[actionable].name,
-            characters: textNodes[actionable].characters
+            characters: textNodes[actionable].characters,
+            mappedToAirTable: ""
           }
         }
       }

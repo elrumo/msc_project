@@ -6,7 +6,6 @@
           <div class="p-b-10">
             <label id="label-API-key" class="coral-FieldLabel f-s-14">API Key</label>
             <input
-              autofocus
               type="text"
               v-model="apiKey"
               class="coral-Form-field _coral-Textfield"

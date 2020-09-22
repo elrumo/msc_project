@@ -23,7 +23,7 @@
                 :id="'label_'+component.name"
                 class="coral-FieldLabel"
               >
-                Select a table
+                Select an AirTable table
               </label>
             <coral-select
               :id="'dropDowns_'+component.title"

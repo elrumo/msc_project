@@ -89,7 +89,10 @@
       <coral-panelstack coral-wizardview-panelstack="" class="float-right panel-btns">
         <!-- API screen -->
         <coral-panel class="u-coral-margin">
-          <button is="coral-button"  variant="primary" coral-wizardview-next=""> 
+          <button v-if="credentials.apiKey != '' && credentials.baseKey != '' " is="coral-button"  variant="primary" coral-wizardview-next=""> 
+            Next 
+          </button>
+          <button v-else is="coral-button" variant="primary" disabled coral-wizardview-next=""> 
             Next 
           </button>
         </coral-panel>
@@ -108,7 +111,7 @@
         <!-- 3 -->
         <!-- Report components -->
         <coral-panel class="u-coral-margin">
-          <button v-if="canProceed" is="coral-button" variant="primary" @click="fieldSelection = !fieldSelection" coral-wizardview-next="" >
+          <button v-if="canProceed.componentSelection" is="coral-button" variant="primary" @click="fieldSelection = !fieldSelection" coral-wizardview-next="" >
             Next
           </button>
           <button v-else is="coral-button" variant="primary" disabled coral-wizardview-next="" >
@@ -230,10 +233,10 @@ export default {
   computed:{
       ...mapState(['credentials', 'selectedView', 'tableName', 'canProceed']),
       ...mapGetters(['canProceedReport']),
-
-      canProceedReportNext(){
-        return this.canProceedReport
-      }
+      
+      // canProceedReportNext(){
+      //   return this.canProceedReport
+      // }
   },
 
   methods: {
