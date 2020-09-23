@@ -150,6 +150,11 @@ function setText(textNode:object, text:string) {
   }) 
 }
 
+function isPrime(num) {
+  for(var i = 2; i < num; i++)
+    if(num % i === 0) return false;
+  return num > 1;
+}
 
 figma.ui.onmessage = msg => {
 
@@ -186,13 +191,17 @@ figma.ui.onmessage = msg => {
       // Creates a new instance of the library comp and adds it to the pageComponents object,
       // Sets the AutoLayout align of the new instance to Center
       // Makes the new library comp instance a child of the page report
-      pageComponents[compName] = reportComponents[componentsToUse[comp].comp.key].createInstance()
-      pageComponents[compName].layoutAlign = "CENTER"
-      reportPage.appendChild(pageComponents[compName])
+      function createCompNode(){
+        pageComponents[compName] = reportComponents[componentsToUse[comp].comp.key].createInstance()
+        pageComponents[compName].layoutAlign = "CENTER"
+        reportPage.appendChild(pageComponents[compName])
+        return pageComponents[compName]
+      }
       // const textNodes = pageComponents[compName].findAll(n => n.name.includes("🔵"))
 
       switch (compName.title) {
         case "exec_summary":
+          createCompNode()
           for(let layer in compName.layers){
             let layerName = compName.layers[layer].name
             let airTableField = compName.layers[layer].mappedToAirTable
@@ -208,77 +217,125 @@ figma.ui.onmessage = msg => {
           } break;
         case "insights":
           
-          let collectionNameNode = reportComponents["94de7a2548bcc63a6b413a9479331fb10600a9e9"].createInstance()
-
-          let insightGroup = figma.createFrame()
-          insightGroup.resize(100, 100)
-          reportPage.appendChild(insightGroup)
-          insightGroup.clipsContent = false
-          insightGroup.layoutAlign = "CENTER"
-          insightGroup.fills = [{type: 'SOLID', color: {r: 0.93, g: 0.95, b: 0.97}, visible: false}];;
-          insightGroup.name = "Insights"
-          insightGroup.layoutMode = "VERTICAL";
-          insightGroup.itemSpacing = 35;
-          insightGroup.counterAxisSizingMode = "AUTO";
-          insightGroup.appendChild(collectionNameNode)
-          
-          let insightWrapper = figma.createFrame()
-          insightWrapper.resize(100, 100)
-          insightGroup.appendChild(insightWrapper)
-          insightWrapper.clipsContent = false
-          insightWrapper.layoutAlign = "MIN"
-          insightWrapper.fills = [{type: 'SOLID', color: {r: 0.93, g: 0.95, b: 0.97}, visible: false}];;
-          insightWrapper.name = "Insights"
-          insightWrapper.layoutMode = "HORIZONTAL";
-          insightWrapper.itemSpacing = 35;
-          insightWrapper.counterAxisSizingMode = "AUTO";
-          insightWrapper.appendChild(pageComponents[compName])
-          
-          // Create an insight group for each collection
+          // Get the value for all Collection references 
           let collectionsRef = {}
           for(let record in componentsToUse[comp].tableData.recordsData){
-            let recordRef = componentsToUse[comp].tableData.recordsData[record]
-            let collectionRef = recordRef["Collections"][0]
-
-            if (!collectionsRef[collectionRef]) {
-
-              let newGroup = insightGroup.clone()
-              reportPage.appendChild(newGroup)
-              let titleNode = newGroup.findOne(n => n.name == "🔵heading_3")
-
-              console.log(1);
-              for(let layer in compName.layers){
-                let airTableMapped = compName.layers[layer].mappedToAirTable
-                let recordLayer = recordRef[airTableMapped]
-
-                let textNode = insightWrapper.findOne(n => n.name == compName.layers[layer].name)
-                let newGroupTextNode = newGroup.findOne(n => n.name == compName.layers[layer].name)
-                // console.log(newGroupTextNode);
-
-                if (Array.isArray(recordLayer) && recordLayer[0].includes("rec")) {
-                  let textToLayer = allTablesData[airTableMapped].find(element => element.id == recordLayer[0]).fields[airTableMapped]  
-                  setText(textNode, textToLayer)
-                  setText(newGroupTextNode, textToLayer)
-                } else{
-                  let textToLayer = recordRef[compName.layers[layer].mappedToAirTable]
-                  setText(textNode, textToLayer)
-                  setText(newGroupTextNode, textToLayer)
-                }
-              }
-
-              for(let collection in allTablesData["Collections"]){
-                if(allTablesData["Collections"][collection].id == collectionRef){
-                  // console.log(allTablesData["Collections"][collection].fields["Collections"]);
-                  collectionsRef[collectionRef] = allTablesData["Collections"][collection].fields["Collections"]
-                  setText(collectionNameNode.children[0], allTablesData["Collections"][collection].fields["Collections"])
-                  setText(titleNode, allTablesData["Collections"][collection].fields["Collections"])
-                }
+            let collectionRef = componentsToUse[comp].tableData.recordsData[record].Collections[0]
+            for(let tableRecord in allTablesData["Collections"]){
+              if(collectionRef == allTablesData["Collections"][tableRecord].id){
+                collectionsRef[collectionRef] = allTablesData["Collections"][tableRecord].fields["Collections"]
               }
             }
+          }
+          
+          function createEmptyFrame(layoutDirection, layoutAlgin, name, itemSpacing:number) {
+            let newFrame = figma.createFrame()
+            newFrame.resize(100, 100)
+            newFrame.clipsContent = false
+            newFrame.layoutAlign = layoutAlgin
+            newFrame.fills = [{type: 'SOLID', color: {r: 0.93, g: 0.95, b: 0.97}, visible: false}];;
+            newFrame.name = name
+            newFrame.layoutMode = layoutDirection;
+            newFrame.itemSpacing = itemSpacing;
+            newFrame.counterAxisSizingMode = "AUTO";
+            return newFrame
+          }
+
+          let insightsGroupParent = createEmptyFrame("VERTICAL", "CENTER", "Insights-Group", 82)
+          reportPage.appendChild(insightsGroupParent)
+
+          for(let collection in collectionsRef){
+            
+            // Create Collection group
+            let insightsCollection = createEmptyFrame("VERTICAL", "MIN", collectionsRef[collection], 35)
+            insightsGroupParent.appendChild(insightsCollection)
+
+            // Create title
+            let collectionTitleNode = reportComponents["94de7a2548bcc63a6b413a9479331fb10600a9e9"].createInstance()
+            insightsCollection.appendChild(collectionTitleNode)
+
+            // Create horizontal frame wrapper for the Insights component
+            let insightHorizontal = createEmptyFrame("HORIZONTAL", "MIN", "Insights-Horizontal", 35)
+            insightsCollection.appendChild(insightHorizontal)
+            // console.log(collection);
+            let howManyInCollection = 0
+            for(let record in componentsToUse[comp].tableData.recordsData){
+              let collectionRef = componentsToUse[comp].tableData.recordsData[record].Collections[0]
+              if (collection == collectionRef) {
+                if (howManyInCollection < 2 ) {
+                  console.log(howManyInCollection);
+                  let insightInstance = createCompNode()
+                  insightHorizontal.appendChild(insightInstance)
+                }
+                if (howManyInCollection + 1 > 2 ) {
+                  insightHorizontal = createEmptyFrame("HORIZONTAL", "MIN", "Insights-Horizontal", 35)
+                  insightsCollection.appendChild(insightHorizontal)
+                  let insightInstance = createCompNode()
+                  insightHorizontal.appendChild(insightInstance)
+                  howManyInCollection = 0
+                }
+                howManyInCollection++
+            }
+          }    
+        }
+          
+          
+          // let insightWrapper = figma.createFrame()
+          // insightWrapper.resize(100, 100)
+          // insightGroup.appendChild(insightWrapper)
+          // insightWrapper.clipsContent = false
+          // insightWrapper.layoutAlign = "MIN"
+          // insightWrapper.fills = [{type: 'SOLID', color: {r: 0.93, g: 0.95, b: 0.97}, visible: false}];;
+          // insightWrapper.name = "Insights"
+          // insightWrapper.layoutMode = "HORIZONTAL";
+          // insightWrapper.itemSpacing = 35;
+          // insightWrapper.counterAxisSizingMode = "AUTO";
+          // insightWrapper.appendChild(pageComponents[compName])
+          
+          // Create an insight group for each collection
+          // for(let record in componentsToUse[comp].tableData.recordsData){
+          //   let recordRef = componentsToUse[comp].tableData.recordsData[record]
+          //   let collectionRef = recordRef["Collections"][0]
+
+          //   if (!collectionsRef[collectionRef]) {
+
+          //     let newGroup = insightGroup.clone()
+          //     reportPage.appendChild(newGroup)
+          //     let titleNode = newGroup.findOne(n => n.name == "🔵heading_3")
+
+          //     console.log(1);
+          //     for(let layer in compName.layers){
+          //       let airTableMapped = compName.layers[layer].mappedToAirTable
+          //       let recordLayer = recordRef[airTableMapped]
+
+          //       let textNode = insightWrapper.findOne(n => n.name == compName.layers[layer].name)
+          //       let newGroupTextNode = newGroup.findOne(n => n.name == compName.layers[layer].name)
+          //       // console.log(newGroupTextNode);
+
+          //       if (Array.isArray(recordLayer) && recordLayer[0].includes("rec")) {
+          //         let textToLayer = allTablesData[airTableMapped].find(element => element.id == recordLayer[0]).fields[airTableMapped]  
+          //         setText(textNode, textToLayer)
+          //         setText(newGroupTextNode, textToLayer)
+          //       } else{
+          //         let textToLayer = recordRef[compName.layers[layer].mappedToAirTable]
+          //         setText(textNode, textToLayer)
+          //         setText(newGroupTextNode, textToLayer)
+          //       }
+          //     }
+
+          //     for(let collection in allTablesData["Collections"]){
+          //       if(allTablesData["Collections"][collection].id == collectionRef){
+          //         // console.log(allTablesData["Collections"][collection].fields["Collections"]);
+          //         collectionsRef[collectionRef] = allTablesData["Collections"][collection].fields["Collections"]
+          //         setText(collectionNameNode.children[0], allTablesData["Collections"][collection].fields["Collections"])
+          //         setText(titleNode, allTablesData["Collections"][collection].fields["Collections"])
+          //       }
+          //     }
+          //   }
             
 
-            collectionsRef[collectionRef] = collectionRef
-          }
+          //   collectionsRef[collectionRef] = collectionRef
+          // }
 
           // console.log(collectionsRef);
           
