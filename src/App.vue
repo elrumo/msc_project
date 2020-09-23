@@ -37,11 +37,6 @@
           
         </coral-panel>
 
-        <!-- Content view 6 -->
-        <coral-panel>
-          <p class="coral-Body--XS p-b-5">Yoooo</p>
-        </coral-panel>
-
       </coral-panelstack> 
 
 
@@ -74,11 +69,6 @@
         </coral-panel>
 
         <!-- 5 -->
-        <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="quiet" coral-wizardview-previous="">Previous</button>
-        </coral-panel>
-
-        <!-- 6 -->
         <coral-panel class="u-coral-margin">
           <button is="coral-button" variant="quiet" coral-wizardview-previous="">Previous</button>
         </coral-panel>
@@ -123,22 +113,15 @@
         <!-- Adds the library component to the componentsInUse arr
         & gets text layers to send them over to the Vue app. -->
         <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="primary" coral-wizardview-next @click="saveInputData">
+          <button is="coral-button" variant="primary" coral-wizardview-next @click="createReport">
             Create Report
           </button>
         </coral-panel>
 
         <!-- 5 -->
         <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="primary" coral-wizardview-next @click="closePlugin">
+          <button is="coral-button" variant="primary" coral-wizardview-next>
             Close
-          </button>
-        </coral-panel>
-
-        <!-- 6 -->
-        <coral-panel class="u-coral-margin">
-          <button is="coral-button" variant="primary" coral-wizardview-next @click="writeToFigma" >
-            Next
           </button>
         </coral-panel>
 
@@ -231,7 +214,7 @@ export default {
   },
 
   computed:{
-      ...mapState(['credentials', 'selectedView', 'tableName', 'canProceed']),
+      ...mapState(['credentials', 'selectedView', 'tableName', 'canProceed', 'componentsToUse', 'allTables']),
       ...mapGetters(['canProceedReport']),
       
       // canProceedReportNext(){
@@ -249,11 +232,11 @@ export default {
       const selectedView = parentComp.selectedView
       const tableName = parentComp.tableName
       
+      // Sets connection settings to desired db
+      const base = new Airtable({apiKey: apiKey}).base(baseKey);
+
       // Shows the loading spinner
       parentComp.setIsWaiting(true)
-
-      // Sets connection settings to desired db
-      var base = new Airtable({apiKey: apiKey}).base(baseKey);
       
       // Async function to get the data from AirTable
       await base(tableName).select({
@@ -274,173 +257,71 @@ export default {
       
     },
 
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    findLayers: function() {
-      const db = this.db
-      let parent = this
-
-      parent.postMessage(
-        { pluginMessage: { type: "find-layers", db} },
-        "*"
-      );
-    },
-    
-    fetchComponentCards(){
-      // Get input data and save to Vue.
+    createReport(){
       let parentComp = this
-      let cardsToUse =  parentComp.cardsToUse
-      for(let card in this.$refs["cardsToUse"]){
-        console.log(parentComp.cardTypes[this.$refs["cardsToUse"][card].value].value);
-        cardsToUse[card].value = parentComp.cardTypes[this.$refs["cardsToUse"][card].value].value
-        cardsToUse[card].name = parentComp.cardTypes[this.$refs["cardsToUse"][card].value].name
-        // cardsToUse[card] = parentComp.cardTypes[this.$refs["cardsToUse"][card].value]
-      }
-      // console.log(document.getElementById("cardSelection").value)
-      parent.postMessage({ pluginMessage: { type: "fetchComponentCards", cardsToUse} }, "*" );
-    },
-
-    closePlugin: function() {
-      parent.postMessage({ pluginMessage: { type: "closePlugin"} }, "*" );
-    },
-    
-    async getItems(){
-      const parentComp = this
-      const fieldsArrayConst = parentComp.aTfieldsArray
+      let componentsToUse = parentComp.componentsToUse
+      const apiKey = parentComp.credentials.apiKey
+      const baseKey = parentComp.credentials.baseKey
+      const selectedView = parentComp.selectedView
 
       // Sets connection settings to desired db
-      var base = new Airtable({apiKey: parentComp.apiKey}).base(parentComp.baseKey);
-      
-      // Functions
+      const base = new Airtable({apiKey: apiKey}).base(baseKey);
+      parentComp.setIsWaiting(true)
 
-      // Gets all the records for the Topics table
-      function getTopicsTable(){
-        base("Topics").select({
-          // Selecting the first 15 records in Grid view:
-          maxRecords: parentComp.recordsNum,
-          view: "Grid view"
-        }).eachPage(function page(records, fetchNextPage) {
-          for(let record in records){
-            parentComp.topicsTable.push({
-              id: records[record].id,
-              topic: records[record].fields.Topic,
-              fields: records[record].fields
-            });
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Gets all the Database data.
+      // Not the most efficinet thing,but good enough way to overcome the AirTable API limitaiton for the proof of concept.
+      let allTables = parentComp.allTables
+      let allTablesData = {}
+      
+      let thisWindow = window
+      
+      async function getAllData(){
+        async function waitForLoop(){
+          for(let table in allTables){
+            await base(allTables[table]).select().all().then((record) => {
+              allTablesData[allTables[table]] = record
+            })
           }
+        }
+        await waitForLoop().then((record) =>{
+          // Hides the loading spinner
+          parentComp.setIsWaiting(false)
+          console.log(allTablesData);
+          sendMesage()
         })
       }
-      const promise1 = new Promise(function(topicsTable){
-        topicsTable(
-          getTopicsTable(),
-        )
-      }).then(()=>{
-        // Wait to get all Topics before gettin the main table data
-         connectToDb()
-      })
+      getAllData()
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      // Connect to selected airtbale database
-      function connectToDb(){
-        // Empty fields array everytime the func is ran
-        parentComp.aTfieldsArray = []
-        var tempFieldsArray = []
-        let numField = 0
-        base(parentComp.tableName).select({
-            // Selecting the first 15 records in Grid view:
-            maxRecords: parentComp.recordsNum,
-            view: "Grid view"
-        }).eachPage(function page(records, fetchNextPage) {
-          // This function (`page`) will get called for each page of records.
-            
-            // Var needed to compar the lenght of record.fields to get a list of all fields/columnds in the DataBase.
-            var mostFields = {
-              numOfFields: 0,
-            };
-            // Save AirTable data to array
-            for(let record in records){
-              // Get record data value and save it to Vue arr
-              parentComp.aTData[records[record].id] = records[record].fields  
-              // There is no API to get all the columns or fields, so I'm iterating through the records and finding the one that has the most fields: https://community.airtable.com/t/accessing-tables-model-via-api/13408/10
-              let numberOfFields = Object.keys(records[numField].fields).length
-              if (mostFields.numOfFields < numberOfFields) {
-                mostFields.numOfFields = numberOfFields
-                mostFields.record = records[record].fields
-                // Save name of text fields to array
-                parentComp.aTfieldsArray = Object.keys(records[record].fields)
-                // console.log(Object.keys(records[record].fields));
-              }
-              numField++
-            }
-            // Get Figma layers
-            // parent.postMessage( { pluginMessage: { type: "find-layers", tempFieldsArray} }, "*" );
-            
-            // To fetch the next page of records, call `fetchNextPage`.
-            // If there are more records, `page` will get called again.
-            // If there are no more records, `done` will get called.
-            fetchNextPage();
-          }, function done(err) {
-              if (err) { console.error(err); return; }
-        });
-      }
+      function sendMesage(){
+        componentsToUse = JSON.parse(JSON.stringify(componentsToUse));
+        allTablesData = JSON.parse(JSON.stringify(allTablesData));
+
+        parent.postMessage({
+          pluginMessage: { code: "createReport", componentsToUse, allTablesData} 
+        },"*");
         
-      // connectToDb()
-    },
-
-    writeToFigma(){
-      let parentComp = this
-
-      // Gets data from input and saves it to Vue data
-      for(let card in parentComp.textLayerNames){
-        if(card == "insights"){
-          for(let layer in parentComp.textLayerNames[card]){
-            let textLayerName = parentComp.textLayerNames[card][layer]
-            var inputValue = parentComp.$refs[parentComp.textLayerNames[card][layer]][0].value // Value of input
-            // console.log(textLayerName,": ", inputValue );
-            parentComp.inputFieldValues[card][textLayerName] = inputValue
-            // console.log(parentComp.inputFieldValues[card]);
-          }
-        }
       }
-      
-      let inputFieldValues = parentComp.inputFieldValues
-      let aTData = parentComp.aTData
-      let topicsTable = parentComp.topicsTable
 
-      // parentComp.aTData
-
-      let data = {"inputFieldValues": inputFieldValues, "aTData": aTData, "topicsTable": topicsTable }
-
-      // Add component cards to Figma page report
-      parent.postMessage({ pluginMessage: { type: "updateFigmaLayers", data}}, "*");
     },
 
-    saveInputData(){
-      let parent = this
-      // Get data input from input forms.
-      for(let el in parent.cardsToUse){
-        if(parent.cardsToUse[el].value == "exec_summary"){
-          parent.inputFieldValues.exec_summary.pageDescription = parent.$refs.pageDescriptionInput[0].value
-        }
-      }
-      parent.writeToFigma()
-    },
-
+    closePlugin(){
+      parent.postMessage(
+        { pluginMessage: { code: "closePlugin"} },
+        "*"
+      );
+    }
   },
 
   mounted(){
-
     let parent = this;
 
     onmessage = (event) => {
       // Get a list of all components with their UID reference
-
       if (event.data.pluginMessage.code == "setCompRef") {
         this.$store.dispatch("setComponents", event.data.pluginMessage.payload)
       }
-
     }
 
   },

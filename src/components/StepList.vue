@@ -5,9 +5,6 @@
         <coral-step>Step 3</coral-step>
         <coral-step>Step 4</coral-step>
         <coral-step>Step 5</coral-step>
-        <coral-step>Step 6</coral-step>
-        <coral-step>Step 7</coral-step>
-        <coral-step>Step 8</coral-step>
       </coral-steplist>
 </template>
 

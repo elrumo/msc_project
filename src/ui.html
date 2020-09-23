@@ -5,9 +5,11 @@
 <div id="app"></div>
 
 <script>
+    // Sets body with the coral tag needed for Adobe Coral Spectrum to work
     let body = document.getElementsByTagName("body")[0]
     body.classList.add("coral--large");
 
+    // Sets UI colour mode according to the host OS's colour mode
     if(window.matchMedia('(prefers-color-scheme: dark)').matches){
         body.classList.add("coral--dark");
     } else{

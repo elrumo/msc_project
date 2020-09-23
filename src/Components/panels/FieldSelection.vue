@@ -76,7 +76,6 @@
       <hr v-if="compList.length > 1" class="coral-Divider--S full-w m-b-25 m-t-25">
     </div>
 
-
   </coral-panel>
 </template>
 
@@ -124,6 +123,7 @@ export default {
         let apiKey = parentComp.getState.credentials.apiKey
         let baseKey = parentComp.getState.credentials.baseKey
         let selectedView = parentComp.selectedView
+        let allTables = parentComp.allTables
         let tableName = e.target.value
 
         if (tableName == "") {
@@ -144,7 +144,6 @@ export default {
           view: "Grid view"
         }).all().then( records =>{
           parentComp.setTableData({records, tableName, compName})
-          // Hides the loading spinner
           parentComp.setIsWaiting(false)
         })
       },

@@ -30,7 +30,7 @@
               @change="setCompToUse($event, section.listId)"
             >
               <coral-select-item
-                v-for="comp in libraryComponents"
+                v-for="comp in filterLibraryComponents"
                 :key="comp.name"
                 :value="comp.title"
               >
@@ -73,6 +73,17 @@ export default {
     computed:{
       ...mapState(['credentials', 'libraryComponents', 'componentsToUse']),
       ...mapGetters(['usableComponents', 'componentsToUseGetter']),
+
+      filterLibraryComponents(){
+        let newLibraryComponents = {}
+        console.log(this.libraryComponents);
+        for(let comp in this.libraryComponents){
+          if(this.libraryComponents[comp].usable) {
+            newLibraryComponents[comp] = this.libraryComponents[comp]
+          }
+        }
+        return newLibraryComponents
+      },
 
       compListToUse: {
         get() {
