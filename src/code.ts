@@ -247,16 +247,21 @@ figma.ui.onmessage = msg => {
           let insightsGroupParent = createEmptyFrame("VERTICAL", "CENTER", "Insights-Group", 82)
           insightsGroupParent.verticalPadding = 80;
           reportPage.appendChild(insightsGroupParent)
+          
 
           for(let collection in collectionsRef){
             
             // Create Collection group
             let insightsCollection = createEmptyFrame("VERTICAL", "MIN", collectionsRef[collection], 35)
             insightsGroupParent.appendChild(insightsCollection)
+            
 
             // Create title
             let collectionTitleNode = reportComponents["94de7a2548bcc63a6b413a9479331fb10600a9e9"].createInstance()
             insightsCollection.appendChild(collectionTitleNode)
+            // console.log(collectionTitleNode);
+            setText(collectionTitleNode.children[0], collectionsRef[collection])
+
 
             // Create horizontal frame wrapper for the Insights component
             let insightHorizontal = createEmptyFrame("HORIZONTAL", "MIN", "Insights-Horizontal", 35)
@@ -278,7 +283,6 @@ figma.ui.onmessage = msg => {
                     let fieldData = componentsToUse[comp].tableData.recordsData[record][airTableField]
                     
                     if (Array.isArray(fieldData) && fieldData[0].includes("rec")) {
-
                       let found = allTablesData[airTableField].find(element => element.id == fieldData[0])
                       let textData = found.fields[airTableField]
                       setText(textNode, textData)
@@ -297,70 +301,9 @@ figma.ui.onmessage = msg => {
                   howManyInCollection = 0
                 }
                 howManyInCollection++                
-            }
-          }    
-        }
-          
-          
-          // let insightWrapper = figma.createFrame()
-          // insightWrapper.resize(100, 100)
-          // insightGroup.appendChild(insightWrapper)
-          // insightWrapper.clipsContent = false
-          // insightWrapper.layoutAlign = "MIN"
-          // insightWrapper.fills = [{type: 'SOLID', color: {r: 0.93, g: 0.95, b: 0.97}, visible: false}];;
-          // insightWrapper.name = "Insights"
-          // insightWrapper.layoutMode = "HORIZONTAL";
-          // insightWrapper.itemSpacing = 35;
-          // insightWrapper.counterAxisSizingMode = "AUTO";
-          // insightWrapper.appendChild(pageComponents[compName])
-          
-          // Create an insight group for each collection
-          // for(let record in componentsToUse[comp].tableData.recordsData){
-          //   let recordRef = componentsToUse[comp].tableData.recordsData[record]
-          //   let collectionRef = recordRef["Collections"][0]
-
-          //   if (!collectionsRef[collectionRef]) {
-
-          //     let newGroup = insightGroup.clone()
-          //     reportPage.appendChild(newGroup)
-          //     let titleNode = newGroup.findOne(n => n.name == "🔵heading_3")
-
-          //     console.log(1);
-          //     for(let layer in compName.layers){
-          //       let airTableMapped = compName.layers[layer].mappedToAirTable
-          //       let recordLayer = recordRef[airTableMapped]
-
-          //       let textNode = insightWrapper.findOne(n => n.name == compName.layers[layer].name)
-          //       let newGroupTextNode = newGroup.findOne(n => n.name == compName.layers[layer].name)
-          //       // console.log(newGroupTextNode);
-
-          //       if (Array.isArray(recordLayer) && recordLayer[0].includes("rec")) {
-          //         let textToLayer = allTablesData[airTableMapped].find(element => element.id == recordLayer[0]).fields[airTableMapped]  
-          //         setText(textNode, textToLayer)
-          //         setText(newGroupTextNode, textToLayer)
-          //       } else{
-          //         let textToLayer = recordRef[compName.layers[layer].mappedToAirTable]
-          //         setText(textNode, textToLayer)
-          //         setText(newGroupTextNode, textToLayer)
-          //       }
-          //     }
-
-          //     for(let collection in allTablesData["Collections"]){
-          //       if(allTablesData["Collections"][collection].id == collectionRef){
-          //         // console.log(allTablesData["Collections"][collection].fields["Collections"]);
-          //         collectionsRef[collectionRef] = allTablesData["Collections"][collection].fields["Collections"]
-          //         setText(collectionNameNode.children[0], allTablesData["Collections"][collection].fields["Collections"])
-          //         setText(titleNode, allTablesData["Collections"][collection].fields["Collections"])
-          //       }
-          //     }
-          //   }
-            
-
-          //   collectionsRef[collectionRef] = collectionRef
-          // }
-
-          // console.log(collectionsRef);
-          
+              }
+            }    
+          } 
           break
 
         default:
