@@ -263,9 +263,27 @@ figma.ui.onmessage = msg => {
               let collectionRef = componentsToUse[comp].tableData.recordsData[record].Collections[0]
               if (collection == collectionRef) {
                 if (howManyInCollection < 2 ) {
-                  console.log(howManyInCollection);
                   let insightInstance = createCompNode()
                   insightHorizontal.appendChild(insightInstance)
+
+                  ///// Change layer text
+                  for(let layer in compName.layers){
+                    let layerName = compName.layers[layer].name
+                    let airTableField = compName.layers[layer].mappedToAirTable
+                    let textNode = pageComponents[compName].findAll(n => n.name.includes(layerName))[0]
+                    let fieldData = componentsToUse[comp].tableData.recordsData[record][airTableField]
+                    
+                    if (Array.isArray(fieldData) && fieldData[0].includes("rec")) {
+
+                      let found = allTablesData[airTableField].find(element => element.id == fieldData[0])
+                      let textData = found.fields[airTableField]
+                      setText(textNode, textData)
+                      
+                    } else{
+                      setText(textNode, fieldData)
+                    }
+                    
+                  }
                 }
                 if (howManyInCollection + 1 > 2 ) {
                   insightHorizontal = createEmptyFrame("HORIZONTAL", "MIN", "Insights-Horizontal", 35)
@@ -274,7 +292,7 @@ figma.ui.onmessage = msg => {
                   insightHorizontal.appendChild(insightInstance)
                   howManyInCollection = 0
                 }
-                howManyInCollection++
+                howManyInCollection++                
             }
           }    
         }
