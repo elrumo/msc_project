@@ -234,45 +234,37 @@ figma.ui.onmessage = msg => {
           insightWrapper.counterAxisSizingMode = "AUTO";
           insightWrapper.appendChild(pageComponents[compName])
           
-          let tableField = ""
-          // let recordsData = {}
-
-          // for(let layer in compName.layers){  
-          //   tableField = compName.layers[layer].mappedToAirTable
-          //   recordsData = 
-          // }
-          
           // Create an insight group for each collection
           let collectionsRef = {}
           for(let record in componentsToUse[comp].tableData.recordsData){
             let recordRef = componentsToUse[comp].tableData.recordsData[record]
             let collectionRef = recordRef["Collections"][0]
-            
-            // console.log("recordRef: ", recordRef);
 
             if (!collectionsRef[collectionRef]) {
+
               let newGroup = insightGroup.clone()
               reportPage.appendChild(newGroup)
               let titleNode = newGroup.findOne(n => n.name == "🔵heading_3")
-              // console.log("titleNode: ", titleNode);
-              
+
+              console.log(1);
               for(let layer in compName.layers){
                 let airTableMapped = compName.layers[layer].mappedToAirTable
                 let recordLayer = recordRef[airTableMapped]
-                // console.log("recordRef: ", recordLayer);
+
+                let textNode = insightWrapper.findOne(n => n.name == compName.layers[layer].name)
+                let newGroupTextNode = newGroup.findOne(n => n.name == compName.layers[layer].name)
+                // console.log(newGroupTextNode);
+
                 if (Array.isArray(recordLayer) && recordLayer[0].includes("rec")) {
-                  // console.log(compName.layers[layer].name, ": ", recordLayer);
-                  // console.log(allTablesData[airTableMapped]);                  
-                  let textToLayer = allTablesData[airTableMapped].find(element => element.id == recordLayer[0]).fields[airTableMapped]
-                  let textNode = insightWrapper.findOne(n => n.name == compName.layers[layer].name)
-                  let newGroupTextNode = newGroup.findOne(n => n.name == compName.layers[layer].name)
-                  console.log(newGroupTextNode);
-                  
+                  let textToLayer = allTablesData[airTableMapped].find(element => element.id == recordLayer[0]).fields[airTableMapped]  
                   setText(textNode, textToLayer)
                   setText(newGroupTextNode, textToLayer)
-                } else{ }
+                } else{
+                  let textToLayer = recordRef[compName.layers[layer].mappedToAirTable]
+                  setText(textNode, textToLayer)
+                  setText(newGroupTextNode, textToLayer)
+                }
               }
-
 
               for(let collection in allTablesData["Collections"]){
                 if(allTablesData["Collections"][collection].id == collectionRef){
