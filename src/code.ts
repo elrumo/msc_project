@@ -8,7 +8,7 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
 
-figma.ui.resize(420, 600)
+figma.ui.resize(400, 600)
 
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
@@ -147,6 +147,9 @@ function execSummary(){
 function setText(textNode:object, text:string) {
   figma.loadFontAsync(textNode.fontName).then((font)=>{
     textNode.characters = text
+  }).catch(err => {
+    console.log("HIIIII: ", err);
+    
   }) 
 }
 
@@ -175,8 +178,8 @@ figma.ui.onmessage = msg => {
     // Create a new frame for the report page, set AutoLayout to Vertical and the width to 1440px
     let reportPage = figma.createFrame()
     reportPage.layoutMode = "VERTICAL";
-    reportPage.itemSpacing = 80;
-    reportPage.verticalPadding = 80;
+    reportPage.itemSpacing = 30;
+    reportPage.verticalPadding = 0;
     reportPage.resize(1440, 1)
     reportPage.fills = [{type: 'SOLID', color: {r: 0.93, g: 0.95, b: 0.97}}];;
     ////////////////////////////////////////////////////////////////
@@ -191,9 +194,9 @@ figma.ui.onmessage = msg => {
       // Creates a new instance of the library comp and adds it to the pageComponents object,
       // Sets the AutoLayout align of the new instance to Center
       // Makes the new library comp instance a child of the page report
-      function createCompNode(){
+      function createCompNode(layoutAlign){
         pageComponents[compName] = reportComponents[componentsToUse[comp].comp.key].createInstance()
-        pageComponents[compName].layoutAlign = "CENTER"
+        pageComponents[compName].layoutAlign = layoutAlign
         reportPage.appendChild(pageComponents[compName])
         return pageComponents[compName]
       }
@@ -201,7 +204,7 @@ figma.ui.onmessage = msg => {
 
       switch (compName.title) {
         case "exec_summary":
-          createCompNode()
+          createCompNode("CENTER")
           for(let layer in compName.layers){
             let layerName = compName.layers[layer].name
             let airTableField = compName.layers[layer].mappedToAirTable
@@ -209,7 +212,7 @@ figma.ui.onmessage = msg => {
             
             for(let record in componentsToUse[comp].tableData.recordsData){
               let recordFields = componentsToUse[comp].tableData.recordsData[record]
-              if (recordFields['Collection Title'] == "Executive summary") {
+              if (recordFields['Collections'] == "Executive summary") {
                 let fieldText = componentsToUse[comp].tableData.recordsData[record][airTableField]
                 setText(textNode, fieldText)
               }
@@ -242,6 +245,7 @@ figma.ui.onmessage = msg => {
           }
 
           let insightsGroupParent = createEmptyFrame("VERTICAL", "CENTER", "Insights-Group", 82)
+          insightsGroupParent.verticalPadding = 80;
           reportPage.appendChild(insightsGroupParent)
 
           for(let collection in collectionsRef){
@@ -263,7 +267,7 @@ figma.ui.onmessage = msg => {
               let collectionRef = componentsToUse[comp].tableData.recordsData[record].Collections[0]
               if (collection == collectionRef) {
                 if (howManyInCollection < 2 ) {
-                  let insightInstance = createCompNode()
+                  let insightInstance = createCompNode("MIN")
                   insightHorizontal.appendChild(insightInstance)
 
                   ///// Change layer text
@@ -288,7 +292,7 @@ figma.ui.onmessage = msg => {
                 if (howManyInCollection + 1 > 2 ) {
                   insightHorizontal = createEmptyFrame("HORIZONTAL", "MIN", "Insights-Horizontal", 35)
                   insightsCollection.appendChild(insightHorizontal)
-                  let insightInstance = createCompNode()
+                  let insightInstance = createCompNode("MIN")
                   insightHorizontal.appendChild(insightInstance)
                   howManyInCollection = 0
                 }

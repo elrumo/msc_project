@@ -8,7 +8,7 @@
       <div
         v-for="component in componentsToUse"
         :key="component.key"
-        class="m-b-40"
+        class="m-b-30"
       >
         <div class="coral-Well">
 
