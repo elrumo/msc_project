@@ -256,10 +256,6 @@ export default new Vuex.Store({
       return state
     },
 
-    // tableDataArr(state){
-    //   return Object.keys(state.tableData)
-    // },
-
     getCompListToUse(state){
       console.log(state.componentsToUse);
     },
