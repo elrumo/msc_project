@@ -8,10 +8,8 @@ export default new Vuex.Store({
 
   state: {
     credentials:{
-      // apiKey: "",
-      // baseKey: "",
-      apiKey: "keyExKGas9NCSngJL",
-      baseKey: "appTSdEpXSi8tcX0J",
+      apiKey: "",
+      baseKey: "",
     },
     
     // tableName: "",
