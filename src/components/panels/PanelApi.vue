@@ -76,7 +76,6 @@ export default {
       removeRecords(payload){
         this.removeRecord(payload)
       }
-      
     }
 }
 </script>

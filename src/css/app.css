@@ -73,7 +73,6 @@
   .nav-bar{
     z-index: 1;
     position: fixed;
-    /* background: white; */
     bottom: 0;
     left: 0;
     width: 100vw;

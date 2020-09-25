@@ -82,7 +82,6 @@
 <script>
 import { mapActions, mapState, mapGetters, mapMutations } from 'vuex'
 import * as Airtable from 'airtable'
-// import { mapFields } from 'vuex-map-fields';
 
 
 export default {
@@ -108,7 +107,6 @@ export default {
 
     methods:{
       ...mapActions(['setIsWaiting', 'setTableData', 'setAirTableToFigmaLayer']),
-      // ...mapState(['credentials', 'componentsToUse']),
 
       compList(payload){
         let parentComp = this

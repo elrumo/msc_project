@@ -4,10 +4,7 @@
     <h1 class="coral-Heading--XS p-t-10 p-b-15">Report components</h1>
 
     <p class="coral-Body--XS p-b-5">Select the components to use on the report page, grab and drag the handle to re-arrange their order.</p>
-
-      <!-- <div v-for="element in compListToUse" :key="element.listId">{{element.listId}}: {{ element.title }}</div> -->
     
-
     <div class="coral-Well m-t-20">
       <draggable v-model="compListToUse" class="select-group" group="people" @start="drag=true" @end="drag=false">
         <div

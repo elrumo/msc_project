@@ -10,7 +10,6 @@
 
     <coral-wizardview>
       
-      <!-- TODO: #3 Create components instead of writing everything in here as pure html -->
       <!-- Steps -->
       <step-list/>
 
@@ -89,7 +88,6 @@
 
         <!-- Select Table and table view -->
         <coral-panel class="u-coral-margin">
-          <!-- <button is="coral-button" variant="primary" @click="getItems" coral-wizardview-next="" > -->
           <button v-if="selectedView != '' & tableName != ''" is="coral-button" variant="primary" @click="fetchAirTable" coral-wizardview-next="" >
             Next
           </button>
@@ -172,54 +170,12 @@ export default {
       images:{
         tables: require("./assets/images/airtable_tables.jpg")
       },
-
-      // tableName: "Insights",
-      // baseKey: "appTSdEpXSi8tcX0J",
-      // apiKey: "keyExKGas9NCSngJL",
-
-      aTData: {},
-      topicsTable:[],
-      aTfieldsArray: [],
-      textLayerNames: [],
-
-      cardTypes:{
-        insights:{
-          name: "Insights",
-          value: "insights",
-          key: "16324faa210a930553c134d73595c7e8fcd3f87a",
-          order: 2
-        },
-        exec_summary:{
-          name: "Executive Summary",
-          value: "exec_summary",
-          key: "a9abf7679808249ff0e15c9b51bc465ce1381f0c",
-          order: 1
-        }
-      },
-      cardsToUse: [
-        {
-          card: "Card-1",
-          value: "",
-          name: ""
-        }
-      ],
-
-      inputFieldValues: {
-        insights: {},
-        exec_summary: {
-          pageDescription: "",
-        }
-      },
     };
   },
 
   computed:{
       ...mapState(['credentials', 'selectedView', 'tableName', 'canProceed', 'componentsToUse', 'allTables']),
       ...mapGetters(['canProceedReport']),
-      
-      // canProceedReportNext(){
-      //   return this.canProceedReport
-      // }
   },
 
   methods: {

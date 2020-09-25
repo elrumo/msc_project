@@ -1,7 +1,3 @@
-// TODO NEXT -> Get the layers to change for the report components.
-
-
-
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { getField, updateField } from 'vuex-map-fields';
@@ -72,10 +68,6 @@ export default new Vuex.Store({
           componentsToUse[item].comp = payload.component
           componentsToUse[item].title = payload.component.title
           componentsToUse[item].name = payload.component.name
-          // componentsToUse[item].title = payload.component.title
-          // componentsToUse[item].name = payload.component.name
-          // componentsToUse[item].airTable = { table:"", data: {} }
-          // componentsToUse[item].layers = payload.component.layers 
         }
       }
 
@@ -141,7 +133,6 @@ export default new Vuex.Store({
       let figmaLayer = payload.figmaLayer
       let componentName = payload.componentName
       console.log(payload);
-      // let airTableData = payload.tabl
       
       for(let comp in componentsToUse){
         if (componentsToUse[comp].comp.name == componentName) {
@@ -150,14 +141,8 @@ export default new Vuex.Store({
               componentsToUse[comp].comp.layers[layer].mappedToAirTable = payload.airTableData
             }
           }
-          // console.log(componentsToUse[comp].comp)
         }
       }
-
-      // for(let comp in componentsToUse){
-      //   // componentsToUse[comp].layers[figmaLayer] = componentsToUse[comp].airTable.data.recordsData[]
-      //   componentsToUse[comp].layers[figmaLayer] = airTableData
-      // }
     },
 
   },
@@ -254,8 +239,6 @@ export default new Vuex.Store({
         tableData.fields.push(fieldName)
       }
 
-      // console.log(tableData);
-
       context.commit("SET_TABLE_DATA", {tableData, componentName})
     },
 
@@ -280,24 +263,6 @@ export default new Vuex.Store({
     getCompListToUse(state){
       console.log(state.componentsToUse);
     },
-
-    // Checks if there are any empty report component dropdowns
-    // canProceedReport: state=>{
-    //   let componentsToUse = state.componentsToUse
-    //   let canProceed = state.canProceed
-
-    //   for(let comp in componentsToUse){
-    //     console.log(componentsToUse[comp]);
-    //     if (componentsToUse[comp].title == "") {
-    //       canProceed = false
-    //       return
-    //     } else{
-    //       canProceed = true
-    //     }
-    //   }
-
-    //   return canProceed
-    // },
     
     usableComponents: state =>{
       let compObj = {}
@@ -312,9 +277,6 @@ export default new Vuex.Store({
 
       return compObj
     }
-    // countRecords: state =>{
-    //   return state.records.length
-    // }
   }
 
 })
